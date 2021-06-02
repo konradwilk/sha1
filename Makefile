@@ -1,6 +1,6 @@
 
 PROJECT = fpga/sha1
-SOURCES= src/sha1.v src/wb_logic.v src/wrapper.v
+SOURCES= src/sha1.v
 ICEBREAKER_DEVICE = up5k
 ICEBREAKER_PIN_DEF = fpga/icebreaker.pcf
 ICEBREAKER_PACKAGE = sg48
