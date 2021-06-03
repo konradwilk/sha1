@@ -12,7 +12,7 @@ GCC_PREFIX ?= riscv64-unknown-elf
 # COCOTB variables
 export COCOTB_REDUCED_LOG_FMT=1
 
-all: multi_project
+all: test_sha1
 
 test_gds: gds/wrapper_sha1.lvs.powered.v
 	$(MAKE) -C gds
