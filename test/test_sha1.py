@@ -3,7 +3,8 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 import ctypes
 
-SHA         = 0x534841;
+DEFAULT     = 0xf00df00d;
+SHA         = 0x53484131;
 STATE_INIT  = 0;
 STATE_START = 1;
 LOOP_ONE    = 2;
@@ -68,7 +69,7 @@ async def loop_one(dut, msg):
     assert (dut.copy_values == 0);
     assert (dut.index == 0);
 
-    assert (dut.temp == 0xf00df00d);
+    assert (dut.temp == DEFAULT);
 
     # Now lets compute the first function.
     a = INITIAL_H0;
@@ -78,9 +79,18 @@ async def loop_one(dut, msg):
     e = INITIAL_H4;
     k = 0x5A827999;
 
-    for i in range(10):
+    assert (dut.w == int(msg));
+
+    for i in range(16):
 
         assert (dut.index == i);
+
+        dut._log.info("i=%d dut.w = %x " % (i, int(dut.w)));
+
+        if i == 0:
+            assert (dut.w == int(msg));
+        else:
+            assert (dut.w == int(0));
 
         # Compute cycle:
         f = (b & c) | ((-b) & d);

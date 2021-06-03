@@ -10,20 +10,20 @@ module w_index(
     /*
      * LISP folks rejoice!
      */
-    assign w = (index == 'h10) ? message[511:479] :
-                ((index == 'hf) ? message[480:448] :
-                 ((index == 'he) ? message[447:416] :
-                  ((index == 'hd) ? message[415:384] :
-                   ((index == 'hc) ? message[383:352] :
-                    ((index == 'hb) ? message[351:320] :
-                     ((index == 'ha) ? message[319:288] :
-                      ((index == 'h9) ? message[287:256] :
-                       ((index == 'h8) ? message[255:223] :
-                        ((index == 'h7) ? message[223:192] :
-                         ((index == 'h6) ? message[191:158] :
-                          ((index == 'h5) ? message[159:126] :
-                           ((index == 'h4) ? message[127:96] :
-                            ((index == 'h3) ? message[95:64] :
+    assign w = (index == 'hf) ? message[511:479] :
+                ((index == 'he) ? message[480:448] :
+                 ((index == 'hd) ? message[447:416] :
+                  ((index == 'hc) ? message[415:384] :
+                   ((index == 'hb) ? message[383:352] :
+                    ((index == 'ha) ? message[351:320] :
+                     ((index == 'h9) ? message[318:288] :
+                      ((index == 'h8) ? message[287:256] :
+                       ((index == 'h7) ? message[255:223] :
+                        ((index == 'h6) ? message[223:192] :
+                         ((index == 'h5) ? message[191:158] :
+                          ((index == 'h4) ? message[159:126] :
+                           ((index == 'h3) ? message[127:96] :
+                            ((index == 'h2) ? message[95:64] :
                              ((index == 'h1) ? message[63:32] :
                                 message[31:0]))))))))))))));
 endmodule
@@ -57,24 +57,7 @@ module sha1
     reg [4:0] state;
 
     wire [31:0] w;
-/*
-    wire [31:0] w0;
-    wire [31:0] w1;
-    wire [31:0] w2;
-    wire [31:0] w3;
-    wire [31:0] w4;
-    wire [31:0] w5;
-    wire [31:0] w6;
-    wire [31:0] w7;
-    wire [31:0] w8;
-    wire [31:0] w9;
-    wire [31:0] w10;
-    wire [31:0] w11;
-    wire [31:0] w12;
-    wire [31:0] w13;
-    wire [31:0] w14;
-    wire [31:0] w15;
-    wire [31:0] w16;*/
+
     reg [31:0] a;
     reg [31:0] a_old;
     reg [31:0] b;
@@ -273,25 +256,6 @@ module sha1
                 .w(w));
 
     assign digest_out = {h0, h1, h3, h4};
-/*
-    assign w16 = message[511:479];
-    assign w15 = message[480:448];
-    assign w14 = message[447:416];
-    assign w13 = message[415:384];
-    assign w12 = message[383:352];
-    assign w11 = message[351:320];
-    assign w10 = message[319:288];
-    assign w9 = message[287:256];
-    assign w8 = message[255:223];
-    assign w7 = message[223:192];
-    assign w6 = message[191:158];
-    assign w5 = message[159:126];
-    assign w4 = message[159:126];
-    assign w3 = message[127:96];
-    assign w2 = message[95:64];
-    assign w1 = message[63:32];
-    assign w0 = message[31:0];
-*/
     assign finish = (state == STATE_FINAL) ? 1'b1 : 1'b0;
 
 endmodule
