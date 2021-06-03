@@ -203,7 +203,7 @@ module sha1
                 if (compute) begin
                     /* f = (b and c) or ((not b) and d) */
                     /* temp = (a leftrotate 5) + f + e + k + w[i] */
-                    temp <= (a << 5) + ((b & c) | (!b) & d) + e + k + w;
+                    temp <= (a << 5) + ((b & c) | (~b) & d) + e + k + w;
                     copy_values <= 1'b1;
                     compute <= 1'b0;
                     /* TODO: For 16->79 we have to xor values. */
