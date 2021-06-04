@@ -87,12 +87,12 @@ module sha1
             compute <= 1'b0;
         end else begin
             /* Never should happen. TODO: Remove*/
-            if (index > 19) begin
+            if (index > 79) begin
                 panic <= 1'b1;
                 state <= STATE_PANIC;
             end
             /* Increment if allowed to increment counter. */
-            if ((index < 18) && inc_counter) begin
+            if (inc_counter) begin
                 index <= index + 1;
                 inc_counter <= 1'b0;
             end
@@ -232,7 +232,6 @@ module sha1
                 if (index == 19) begin
                     state <= LOOP_TWO;
                     k <= 32'h6ED9EBA1;
-                    index <= 0;
                 end
 
                 if (compute) begin
@@ -245,10 +244,9 @@ module sha1
                 end
               end
             LOOP_TWO: begin
-                if (index == 19) begin
+                if (index == 39) begin
                     state <= LOOP_THREE;
                     k <= 32'h8F1BBCDC;
-                    index <= 0;
                 end
                 if (compute) begin
                     /* f = b xor c xor d */
@@ -259,10 +257,9 @@ module sha1
                 end
               end
             LOOP_THREE: begin
-                if (index == 19) begin
+                if (index == 59) begin
                     state <= LOOP_FOUR;
                     k <= 32'hCA62C1D6;
-                    index <= 0;
                 end
                 if (compute) begin
                     /* f = (b and c) or (b and d) or (c and d) */
@@ -273,10 +270,9 @@ module sha1
                 end
               end
             LOOP_FOUR: begin
-                if (index == 19) begin
+                if (index == 79) begin
                     state <= STATE_DONE;
                     k <= DEFAULT;
-                    index <= 0;
                 end
                 if (compute) begin
                     /* f = b xor c xor d
@@ -293,6 +289,7 @@ module sha1
                 h3 <= h3 + d;
                 h4 <= h4 + e;
                 state <= STATE_FINAL;
+                index <= 0;
               end
             STATE_FINAL: begin
               end
