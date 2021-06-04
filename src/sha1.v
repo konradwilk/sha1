@@ -1,33 +1,6 @@
 `default_nettype none
 `timescale 1ns/1ns
 
-module w_index(
-    input wire [5:0] index,
-    input wire [511:0] message,
-    output wire [31:0] w
-    );
-
-    /*
-     * LISP folks rejoice!
-     */
-    assign w = (index == 'hf) ? message[511:479] :
-                ((index == 'he) ? message[480:448] :
-                 ((index == 'hd) ? message[447:416] :
-                  ((index == 'hc) ? message[415:384] :
-                   ((index == 'hb) ? message[383:352] :
-                    ((index == 'ha) ? message[351:320] :
-                     ((index == 'h9) ? message[318:288] :
-                      ((index == 'h8) ? message[287:256] :
-                       ((index == 'h7) ? message[255:223] :
-                        ((index == 'h6) ? message[223:192] :
-                         ((index == 'h5) ? message[191:158] :
-                          ((index == 'h4) ? message[159:126] :
-                           ((index == 'h3) ? message[127:96] :
-                            ((index == 'h2) ? message[95:64] :
-                             ((index == 'h1) ? message[63:32] :
-                                message[31:0]))))))))))))));
-endmodule
-
 module sha1
     (
         input wire clk,
@@ -40,7 +13,7 @@ module sha1
     localparam DEFAULT = 32'hf00df00d;
 
     localparam MESSAGE_SIZE = 512;
-    reg [MESSAGE_SIZE-1:0] message;
+    reg [32:0] message[79:0];
 
     localparam DIGEST_SIZE = 160;
     reg [5:0] index;
@@ -88,7 +61,7 @@ module sha1
         if (reset) begin
             index <= 0;
             state <= STATE_INIT;
-            message <= {MESSAGE_SIZE-1{1'b0}};
+            message[0] <= {MESSAGE_SIZE-1{1'b0}};
             /* TODO: Should they have better pre-canned values? */
             a <= DEFAULT;
             b <= DEFAULT;
@@ -166,7 +139,86 @@ module sha1
                 e <= 32'hC3D2E1F0;
                 h4 <= 32'hC3D2E1F0;
 
-                message <= message_in;
+                message[79] <= 0;
+                message[78] <= 0;
+                message[77] <= 0;
+                message[76] <= 0;
+                message[75] <= 0;
+                message[74] <= 0;
+                message[73] <= 0;
+                message[72] <= 0;
+                message[71] <= 0;
+                message[70] <= 0;
+                message[69] <= 0;
+                message[68] <= 0;
+                message[67] <= 0;
+                message[66] <= 0;
+                message[65] <= 0;
+                message[64] <= 0;
+                message[63] <= 0;
+                message[62] <= 0;
+                message[61] <= 0;
+                message[60] <= 0;
+                message[59] <= 0;
+                message[58] <= 0;
+                message[57] <= 0;
+                message[56] <= 0;
+                message[55] <= 0;
+                message[54] <= 0;
+                message[53] <= 0;
+                message[52] <= 0;
+                message[51] <= 0;
+                message[50] <= 0;
+                message[49] <= 0;
+                message[48] <= 0;
+                message[47] <= 0;
+                message[46] <= 0;
+                message[45] <= 0;
+                message[44] <= 0;
+                message[43] <= 0;
+                message[42] <= 0;
+                message[41] <= 0;
+                message[40] <= 0;
+                message[39] <= 0;
+                message[38] <= 0;
+                message[37] <= 0;
+                message[36] <= 0;
+                message[35] <= 0;
+                message[34] <= 0;
+                message[33] <= 0;
+                message[32] <= 0;
+                message[31] <= 0;
+                message[30] <= 0;
+                message[29] <= 0;
+                message[28] <= 0;
+                message[27] <= 0;
+                message[26] <= 0;
+                message[25] <= 0;
+                message[24] <= 0;
+                message[23] <= 0;
+                message[22] <= 0;
+                message[21] <= 0;
+                message[20] <= 0;
+                message[19] <= 0;
+                message[18] <= 0;
+                message[17] <= 0;
+                message[16] <= message_in[511:479];
+                message[15] <= message_in[480:448];
+                message[14] <= message_in[447:416];
+                message[13] <= message_in[415:384];
+                message[12] <= message_in[383:352];
+                message[11] <= message_in[351:320];
+                message[10] <= message_in[319:288];
+                message[9] <= message_in[287:256];
+                message[8] <= message_in[255:223];
+                message[7] <= message_in[223:192];
+                message[6] <= message_in[191:158];
+                message[5] <= message_in[159:126];
+                message[4] <= message_in[159:126];
+                message[3] <= message_in[127:96];
+                message[2] <= message_in[95:64];
+                message[1] <= message_in[63:32];
+                message[0] <= message_in[31:0];
 
                 state <= LOOP_ONE;
                 k = 32'h5A827999;
@@ -251,9 +303,7 @@ module sha1
     end
 
     /* Provides the w[index] funcionality */
-    w_index w_idx(.index(index),
-                .message(message_in),
-                .w(w));
+    assign w = message[index];
 
     assign digest_out = {h0, h1, h3, h4};
     assign finish = (state == STATE_FINAL) ? 1'b1 : 1'b0;
