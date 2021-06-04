@@ -1,10 +1,13 @@
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
+from cocotb.binary import BinaryValue
+
 import ctypes
 
 DEFAULT     = 0xf00df00d;
-SHA         = 0x53484131;
+SHA         = 0x61626364658000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000028;
+
 STATE_INIT  = 0;
 STATE_START = 1;
 LOOP_ONE    = 2;
@@ -46,10 +49,15 @@ async def payload(dut, msg):
     await ClockCycles(dut.clk, 1)
     assert (dut.state == STATE_START);
 
+
 async def loop_one(dut, msg):
 
     assert (dut.state == STATE_START);
     await ClockCycles(dut.clk, 1)
+
+    for i in range(len(dut.message)):
+        dut._log.info("%d = [%s]" % (i, hex(BinaryValue(str(dut.message[i].value)))));
+        # TODO, match with msg.
 
     assert (dut.state == LOOP_ONE);
 
@@ -79,7 +87,7 @@ async def loop_one(dut, msg):
     e = INITIAL_H4;
     k = 0x5A827999;
 
-    assert (dut.w == int(msg));
+    #assert (dut.w == int(msg));
 
     for i in range(16):
 
@@ -87,10 +95,10 @@ async def loop_one(dut, msg):
 
         dut._log.info("i=%d dut.w = %x " % (i, int(dut.w)));
 
-        if i == 0:
-            assert (dut.w == int(msg));
-        else:
-            assert (dut.w == int(0));
+        #if i == 0:
+        #    assert (dut.w == int(msg));
+        #else:
+        #    assert (dut.w == int(0));
 
         # Compute cycle:
         f = (b & c) | ((-b) & d);
