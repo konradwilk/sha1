@@ -117,9 +117,15 @@ module sha1
                 inc_counter <= 1'b1;
             end
             /*
-             * TODO:
+             * For t = 16 to 79
              * w[i] = (w[i-3] xor w[i-8] xor w[i-14] xor w[i-16]) leftrotate 1
+             *
+             * This means we need this ready before we get to index=16 hence
+             * the +1 adjustment for every offset.
              */
+            if (index >= 15) begin
+                message[index+1] <= (w[index-3+1] ^ w[index-8+1] ^ w[index-14+1] ^ w[index-16+1]) << 1;
+            end
             case (state)
             STATE_INIT: begin
                 if (on)
@@ -240,7 +246,6 @@ module sha1
                     temp <= (a << 5) + ((b & c) | (~b) & d) + e + k + w;
                     copy_values <= 1'b1;
                     compute <= 1'b0;
-                    /* TODO: For 16->79 we have to xor values. */
                 end
               end
             LOOP_TWO: begin
