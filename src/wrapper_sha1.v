@@ -80,5 +80,19 @@ module wrapper_sha1  (
     wire reset = la_data_in[0];
 
 
+    sha1_wb sha1_wishbone (
+            .reset(reset),
+            .done(buf_io_out[8]),
+            .wb_clk_i(wb_clk_i),
+            .wb_rst_i(wb_rst_i),
+            .wbs_stb_i(wbs_stb_i),
+            .wbs_cyc_i(wbs_cyc_i),
+            .wbs_we_i(wbs_we_i),
+            .wbs_sel_i(wbs_sel_i),
+            .wbs_dat_i(wbs_dat_i),
+            .wbs_adr_i(wbs_adr_i),
+            .wbs_ack_o(wbs_ack_o),
+            .wbs_dat_o(wbs_dat_o));
+
 endmodule
 `default_nettype wire
