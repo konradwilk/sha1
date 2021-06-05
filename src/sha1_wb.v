@@ -36,12 +36,12 @@ module sha1_wb #(
     reg sha1_on;
     reg sha1_reset;
     reg sha1_panic;
-    wire sha1_done;
+    reg sha1_done;
     reg [2:0] sha1_digest_idx;
     reg [5:0] sha1_loop_idx;
     reg [6:0] sha1_msg_idx;
     reg [159:0] sha1_digest;
-    reg [511:0] message;
+    reg [511:0] sha1_message;
     reg transmit;
     reg panic;
 
@@ -86,6 +86,8 @@ module sha1_wb #(
             sha1_msg_idx <= 0;
             sha1_digest_idx <= 0;
             sha1_digest <= 0;
+            sha1_message <= 0;
+            sha1_done <= 0;
 	    end else begin
 		    if (transmit)
 			    transmit <= 1'b0;
@@ -110,15 +112,15 @@ module sha1_wb #(
                          if (sha1_done) begin
                                 case (sha1_digest_idx)
                                         'h0:
-                                                buffer_o <= digest[31:0];
+                                                buffer_o <= sha1_digest[31:0];
                                         'h1:
-                                                buffer_o <= digest[63:32];
+                                                buffer_o <= sha1_digest[63:32];
                                         'h2:
-                                                buffer_o <= digest[95:64];
+                                                buffer_o <= sha1_digest[95:64];
                                         'h3:
-                                                buffer_o <= digest[127:96];
+                                                buffer_o <= sha1_digest[127:96];
                                         'h4:
-                                                buffer_o <= digest[159:128];
+                                                buffer_o <= sha1_digest[159:128];
                                 endcase
                                 if (sha1_digest_idx == 4)
                                    sha1_digest_idx <= 0;
@@ -148,22 +150,22 @@ module sha1_wb #(
                     CTRL_MSG_IN:
                     begin
                         case (sha1_msg_idx)
-                            'hf : message[511:480] <= wbs_dat;
-                            'he : message[479:448] <= wbs_dat;
-                            'hd : message[447:416] <= wbs_dat;
-                            'hc : message[415:384] <= wbs_dat;
-                            'hb : message[383:352] <= wbs_dat;
-                            'ha : message[351:320] <= wbs_dat;
-                            'h9 : message[319:288] <= wbs_dat;
-                            'h8 : message[287:256] <= wbs_dat;
-                            'h7 : message[255:223] <= wbs_dat;
-                            'h6 : message[223:192] <= wbs_dat;
-                            'h5 : message[191:158] <= wbs_dat;
-                            'h4 : message[159:126] <= wbs_dat;
-                            'h3 : message[127:96] <= wbs_dat;
-                            'h2 : message[95:64] <= wbs_dat;
-                            'h1 : message[63:32] <= wbs_dat;
-                            'h0 : message[31:0] <= wbs_dat;
+                            'hf : sha1_message[511:480] <= wbs_dat_i;
+                            'he : sha1_message[479:448] <= wbs_dat_i;
+                            'hd : sha1_message[447:416] <= wbs_dat_i;
+                            'hc : sha1_message[415:384] <= wbs_dat_i;
+                            'hb : sha1_message[383:352] <= wbs_dat_i;
+                            'ha : sha1_message[351:320] <= wbs_dat_i;
+                            'h9 : sha1_message[319:288] <= wbs_dat_i;
+                            'h8 : sha1_message[287:256] <= wbs_dat_i;
+                            'h7 : sha1_message[255:223] <= wbs_dat_i;
+                            'h6 : sha1_message[223:192] <= wbs_dat_i;
+                            'h5 : sha1_message[191:158] <= wbs_dat_i;
+                            'h4 : sha1_message[159:126] <= wbs_dat_i;
+                            'h3 : sha1_message[127:96] <= wbs_dat_i;
+                            'h2 : sha1_message[95:64] <= wbs_dat_i;
+                            'h1 : sha1_message[63:32] <= wbs_dat_i;
+                            'h0 : sha1_message[31:0] <= wbs_dat_i;
                         endcase
                         if (sha1_msg_idx == 'hf) begin
                             sha1_on = 1'b1;
@@ -182,6 +184,6 @@ module sha1_wb #(
 
     assign wbs_dat_o = reset ? 32'b0 : buffer_o;
 
-
+    assign done = reset ? 1'b0 : sha1_done;
 endmodule
 `default_nettype wire
