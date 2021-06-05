@@ -13,6 +13,8 @@ module sha1_wb #(
     input wire reset,
 
     output wire done,
+    output wire irq,
+
     /* WishBone logic */
 
     input wire wb_clk_i,
@@ -184,5 +186,8 @@ module sha1_wb #(
     assign wbs_dat_o = reset ? 32'b0 : buffer_o;
 
     assign done = reset ? 1'b0 : sha1_done;
+
+    assign irq = reset ? 1'b0: sha1_done;
+
 endmodule
 `default_nettype wire
