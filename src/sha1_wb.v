@@ -8,8 +8,7 @@
 `endif
 
 module sha1_wb #(
-    parameter    [31:0] BASE_ADDRESS   = 32'h30000024,
-    parameter CLOCK_WIDTH = 6
+    parameter    [31:0] BASE_ADDRESS   = 32'h30000024
     ) (
     input wire reset,
 
@@ -56,23 +55,23 @@ module sha1_wb #(
     localparam CTRL_MSG_IN		= BASE_ADDRESS + 'h8;
     localparam ACK			    = 32'h0000001;
     localparam EINVAL			= 32'hfffffea; /* -14 */
-
-    /*
-     * A bit more flexible - if there are gaps (filled with zeros)
-     * use this to index in.
-     */
-    localparam CTRL_MSG_IN_IDX		= BASE_ADDRESS + 'h0C;
-
     /*
      * When writing: The [2:0] are operations.
      * When reading: [10:4] in what loop we are [0->79]. [1:0] are operations.
      */
-    localparam CTRL_OPS 		= BASE_ADDRESS + 'h10;
+    localparam CTRL_OPS 		= BASE_ADDRESS + 'h0C;
     localparam ON			    = 4'b0001;
     localparam OFF			    = 4'b0000;
     localparam RESET			= 4'b0010;
     localparam PANIC			= 4'b0100; /* Can only be read. */
     localparam DONE			    = 4'b1000; /* Can only be read. */
+
+    /*
+     * A bit more flexible - if there are gaps (filled with zeros)
+     * use this to index in.
+     */
+    localparam CTRL_MSG_IN_IDX		= BASE_ADDRESS + 'h10;
+
 
     /* Five reads for the digest. */
     localparam CTRL_DIGEST 		= BASE_ADDRESS + 'h14;

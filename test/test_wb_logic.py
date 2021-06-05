@@ -18,26 +18,22 @@ async def write_val(dut, wbs, cmd, val):
     dut._log.info("%s <= (ret=%s)" % (hex(cmd),  hex(val)));
     return val
 
-CTRL_GET_NR         = 0x30000000
-CTRL_GET_ID         = 0x30000004
-CTRL_SET_IRQ        = 0x30000008
-CTRL_FIBONACCI_CTRL = 0x3000000c
-CTRL_FIBONACCI_CLOCK= 0x30000010
-CTRL_FIBONACCI_VAL  = 0x30000014
-CTRL_WRITE          = 0x30000018
-CTRL_READ           = 0x3000001C
-CTRL_PANIC          = 0x30000020
+CTRL_GET_NR         = 0x30000024
+CTRL_GET_ID         = 0x30000028
+CTRL_CTRL_OPS       = 0x3000002C
+CTRL_MSG_IN_IDX     = 0x30000030
+CTRL_CTRL_DIGEST    = 0x30000038
 
 async def test_id(dut, wbs):
     for i in range(10):
         cmd = CTRL_GET_ID;
-        exp = 0x4669626f;
+        exp = 0x53484131;
         val = await read_val(dut, wbs, cmd, exp);
         assert (val == exp);
         cmd = CTRL_GET_NR;
-        # First version has only 9 commands
-        if (exp == 0x4669626f):
-            exp = 9;
+        # First version has only 4 commands
+        if (exp == 0x53484131):
+            exp = 4;
 
         val = await read_val(dut, wbs, cmd, exp);
         assert (val == exp);
