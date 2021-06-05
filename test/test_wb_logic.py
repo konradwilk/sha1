@@ -19,10 +19,10 @@ async def write_val(dut, wbs, cmd, val):
     return val
 
 CTRL_GET_NR         = 0x30000024
-CTRL_GET_ID         = 0x30000028
-CTRL_CTRL_OPS       = 0x3000002C
-CTRL_MSG_IN_IDX     = 0x30000030
-CTRL_CTRL_DIGEST    = 0x30000038
+CTRL_GET_ID         = CTRL_GET_NR + 0x4
+CTRL_SHA1_OPS       = CTRL_GET_NR + 0x8
+CTRL_MSG_IN         = CTRL_GET_NR + 0xC
+CTRL_SHA1_DIGEST    = CTRL_GET_NR + 0x10
 
 async def test_id(dut, wbs):
     for i in range(10):
@@ -49,7 +49,7 @@ async def test_irq(dut, wbs, wrapper):
     await ClockCycles(dut.wb_clk_i, 5)
     assert name == 0
 
-    val = await write_val(dut, wbs, CTRL_SET_IRQ, 1);
+    val = await write_val(dut, wbs, CTRL_SHA1_OPS, 1);
     assert(val == 1);
 
     await ClockCycles(dut.wb_clk_i, 5)

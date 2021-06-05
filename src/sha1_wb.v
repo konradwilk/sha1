@@ -53,30 +53,24 @@ module sha1_wb #(
     localparam CTRL_GET_ID		= BASE_ADDRESS + 'h4;
     localparam CTRL_ID			= 32'h53484131; /* SHA1 */
     localparam DEFAULT			= 32'hf00df00d;
-    /* This requires 16 CTRL_MSG_IN and after that we start processing. */
-    localparam CTRL_MSG_IN		= BASE_ADDRESS + 'h8;
-    localparam ACK			    = 32'h0000001;
-    localparam EINVAL			= 32'hfffffea; /* -14 */
     /*
      * When writing: The [2:0] are operations.
      * When reading: [10:4] in what loop we are [0->79]. [1:0] are operations.
      */
-    localparam CTRL_OPS 		= BASE_ADDRESS + 'h0C;
+    localparam CTRL_SHA1_OPS    = BASE_ADDRESS + 'h8;
     localparam ON			    = 4'b0001;
     localparam OFF			    = 4'b0000;
     localparam RESET			= 4'b0010;
     localparam PANIC			= 4'b0100; /* Can only be read. */
     localparam DONE			    = 4'b1000; /* Can only be read. */
 
-    /*
-     * A bit more flexible - if there are gaps (filled with zeros)
-     * use this to index in.
-     */
-    localparam CTRL_MSG_IN_IDX		= BASE_ADDRESS + 'h10;
-
+    /* This requires 16 CTRL_MSG_IN and after that we start processing. */
+    localparam CTRL_MSG_IN		= BASE_ADDRESS + 'hC;
+    localparam ACK			    = 32'h0000001;
+    localparam EINVAL			= 32'hfffffea; /* -14 */
 
     /* Five reads for the digest. */
-    localparam CTRL_DIGEST 		= BASE_ADDRESS + 'h14;
+    localparam CTRL_SHA1_DIGEST 		= BASE_ADDRESS + 'h10;
 
     always @(posedge wb_clk_i) begin
 	    if (reset) begin
@@ -104,11 +98,9 @@ module sha1_wb #(
 					    buffer_o <= CTRL_ID;
 				    CTRL_MSG_IN:
 					    buffer_o <= EINVAL;
-				    CTRL_MSG_IN_IDX:
-					    buffer_o <= EINVAL;
-				    CTRL_OPS:
+				    CTRL_SHA1_OPS:
                         buffer_o <= {22'b0, sha1_loop_idx, sha1_done, sha1_panic, sha1_reset, sha1_on};
-				    CTRL_DIGEST:
+				    CTRL_SHA1_DIGEST:
                     begin
                          if (sha1_done) begin
                                 case (sha1_digest_idx)
@@ -137,7 +129,7 @@ module sha1_wb #(
 		    /* Write case */
 		    if (wb_active && wbs_we_i && &wbs_sel_i) begin
 			     case (wbs_adr_i)
-                    CTRL_OPS:
+                    CTRL_SHA1_OPS:
                     begin
                             sha1_on = wbs_dat_i[0];
                             sha1_reset = wbs_dat_i[1];
