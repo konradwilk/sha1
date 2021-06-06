@@ -44,7 +44,6 @@ module sha1_wb #(
     reg [159:0] sha1_digest;
     reg [511:0] sha1_message;
     reg transmit;
-    reg panic;
 
     /* CTRL_GET parameters. */
     localparam CTRL_GET_NR		= BASE_ADDRESS;
@@ -76,13 +75,14 @@ module sha1_wb #(
 	    if (reset) begin
             buffer_o <= DEFAULT;
             buffer <= DEFAULT;
-            panic <= 1'b0;
+            sha1_panic <= 1'b0;
             transmit <= 1'b0;
             sha1_msg_idx <= 0;
             sha1_digest_idx <= 0;
             sha1_digest <= 0;
             sha1_message <= 0;
             sha1_done <= 0;
+            sha1_reset <= 0;
 	    end else begin
 		    if (transmit)
 			    transmit <= 1'b0;
