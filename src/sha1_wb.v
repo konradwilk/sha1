@@ -154,10 +154,10 @@ module sha1_wb #(
                             'ha : sha1_message[351:320] <= wbs_dat_i;
                             'h9 : sha1_message[319:288] <= wbs_dat_i;
                             'h8 : sha1_message[287:256] <= wbs_dat_i;
-                            'h7 : sha1_message[255:223] <= wbs_dat_i;
+                            'h7 : sha1_message[255:224] <= wbs_dat_i;
                             'h6 : sha1_message[223:192] <= wbs_dat_i;
-                            'h5 : sha1_message[191:158] <= wbs_dat_i;
-                            'h4 : sha1_message[159:126] <= wbs_dat_i;
+                            'h5 : sha1_message[191:160] <= wbs_dat_i;
+                            'h4 : sha1_message[159:128] <= wbs_dat_i;
                             'h3 : sha1_message[127:96] <= wbs_dat_i;
                             'h2 : sha1_message[95:64] <= wbs_dat_i;
                             'h1 : sha1_message[63:32] <= wbs_dat_i;
