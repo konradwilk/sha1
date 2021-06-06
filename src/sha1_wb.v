@@ -40,7 +40,7 @@ module sha1_wb #(
     reg sha1_done;
     wire finish;
     reg [2:0] sha1_digest_idx;
-    reg [5:0] sha1_loop_idx;
+    reg [6:0] sha1_loop_idx;
     reg [6:0] sha1_msg_idx;
     reg [159:0] sha1_digest;
     reg [511:0] sha1_message;
@@ -106,7 +106,7 @@ module sha1_wb #(
 				    CTRL_MSG_IN:
 					    buffer_o <= EINVAL;
 				    CTRL_SHA1_OPS:
-                        buffer_o <= {22'b0, sha1_loop_idx, sha1_done, sha1_panic, sha1_reset, sha1_on};
+                        buffer_o <= {21'b0, sha1_loop_idx, sha1_done, sha1_panic, sha1_reset, sha1_on};
 				    CTRL_SHA1_DIGEST:
                     begin
                          if (sha1_done) begin
@@ -149,7 +149,7 @@ module sha1_wb #(
                                 sha1_done <= 0;
                                 sha1_digest_idx <= 0;
                             end
-                            buffer_o <= {22'b0, sha1_loop_idx, sha1_done, sha1_panic, wbs_dat_i[1], wbs_dat_i[0]};
+                            buffer_o <= {21'b0, sha1_loop_idx, sha1_done, sha1_panic, wbs_dat_i[1], wbs_dat_i[0]};
                     end
                     CTRL_MSG_IN:
                     begin
