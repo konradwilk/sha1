@@ -1,10 +1,10 @@
 `default_nettype none
 `timescale 1ns/1ns
 `ifdef FORMAL
-    `define MPRJ_IO_PADS 38
+`define MPRJ_IO_PADS 38
 `endif
 `ifdef VERILATOR
-    `define MPRJ_IO_PADS 38
+`define MPRJ_IO_PADS 38
 `endif
 module wrapper_sha1  (
 `ifdef USE_POWER_PINS
@@ -55,7 +55,7 @@ module wrapper_sha1  (
     wire [`MPRJ_IO_PADS-1:0] buf_io_oeb;
     wire [2:0] buf_irq;
 
-    `ifdef FORMAL
+`ifdef FORMAL
     // formal can't deal with z, so set all outputs to 0 if not active
     assign wbs_ack_o    = active ? buf_wbs_ack_o    : 1'b0;
     assign wbs_dat_o    = active ? buf_wbs_dat_o    : 32'b0;
@@ -63,8 +63,8 @@ module wrapper_sha1  (
     assign io_out       = active ? buf_io_out       : {`MPRJ_IO_PADS{1'b0}};
     assign io_oeb       = active ? buf_io_oeb       : {`MPRJ_IO_PADS{1'b0}};
     assign irq		= active ? buf_irq          : 3'b0;
-    `include "properties.v"
-    `else
+`include "properties.v"
+`else
     // tristate buffers
     assign wbs_ack_o    = active ? buf_wbs_ack_o    : 1'bz;
     assign wbs_dat_o    = active ? buf_wbs_dat_o    : 32'bz;
@@ -72,7 +72,7 @@ module wrapper_sha1  (
     assign io_out       = active ? buf_io_out       : {`MPRJ_IO_PADS{1'bz}};
     assign io_oeb       = active ? buf_io_oeb       : {`MPRJ_IO_PADS{1'bz}};
     assign irq		= active ? buf_irq          : 3'bz;
-    `endif
+`endif
 
     // permanently set oeb so that outputs are always enabled: 0 is output, 1 is high-impedance
     assign buf_io_oeb = {`MPRJ_IO_PADS{1'b0}};
@@ -81,19 +81,19 @@ module wrapper_sha1  (
 
 
     sha1_wb sha1_wishbone (
-            .reset(reset),
-            .done(buf_io_out[8]),
-            .irq(buf_irq[0]),
-            .wb_clk_i(wb_clk_i),
-            .wb_rst_i(wb_rst_i),
-            .wbs_stb_i(wbs_stb_i),
-            .wbs_cyc_i(wbs_cyc_i),
-            .wbs_we_i(wbs_we_i),
-            .wbs_sel_i(wbs_sel_i),
-            .wbs_dat_i(wbs_dat_i),
-            .wbs_adr_i(wbs_adr_i),
-            .wbs_ack_o(buf_wbs_ack_o),
-            .wbs_dat_o(buf_wbs_dat_o));
+        .reset(reset),
+        .done(buf_io_out[8]),
+        .irq(buf_irq[0]),
+        .wb_clk_i(wb_clk_i),
+        .wb_rst_i(wb_rst_i),
+        .wbs_stb_i(wbs_stb_i),
+        .wbs_cyc_i(wbs_cyc_i),
+        .wbs_we_i(wbs_we_i),
+        .wbs_sel_i(wbs_sel_i),
+        .wbs_dat_i(wbs_dat_i),
+        .wbs_adr_i(wbs_adr_i),
+        .wbs_ack_o(buf_wbs_ack_o),
+        .wbs_dat_o(buf_wbs_dat_o));
 
 endmodule
 `default_nettype wire
