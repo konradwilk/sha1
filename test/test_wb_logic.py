@@ -63,16 +63,17 @@ async def test_irq(dut, wbs, wrapper):
 
     assert(name.value == 0);
 
-async def test_ops(dut, wbs, wrapper):
+async def test_ops(dut, wbs, wrapper, gl):
 
-    if wrapper:
-        name = dut.sha1_wishbone.sha1_on
-    else:
-        name = dut.sha1_on
+    if gl == 0:
+        if wrapper:
+            name = dut.sha1_wishbone.sha1_on
+        else:
+            name = dut.sha1_on
 
-    name <= 0;
-    await ClockCycles(dut.wb_clk_i, 5)
-    assert name == 0
+        name <= 0;
+        await ClockCycles(dut.wb_clk_i, 5)
+        assert name == 0
 
     cmd = CTRL_SHA1_OPS
     exp = 0x0;
@@ -87,23 +88,26 @@ async def test_ops(dut, wbs, wrapper):
     val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
     assert(val == exp);
 
-    assert name == 0
+    if gl == 0:
+        assert name == 0
 
     cmd = CTRL_SHA1_OPS
     exp = 0x0;
     val = await read_val(dut, wbs, cmd, exp);
     assert (val == exp);
 
-    assert name == 0
+    if gl == 0:
+        assert name == 0
 
-async def test_msg(dut, wbs, wrapper):
+async def test_msg(dut, wbs, wrapper, gl):
 
-    if wrapper:
-        name = dut.sha1_wishbone.sha1_message;
-        idx = dut.sha1_wishbone.sha1_msg_idx;
-    else:
-        name = dut.sha1_message;
-        idx = dut.sha1_msg_idx;
+    if gl == 0:
+        if wrapper:
+            name = dut.sha1_wishbone.sha1_message;
+            idx = dut.sha1_wishbone.sha1_msg_idx;
+        else:
+            name = dut.sha1_message;
+            idx = dut.sha1_msg_idx;
 
     # Noting is running, right?
     cmd = CTRL_SHA1_OPS
@@ -111,16 +115,18 @@ async def test_msg(dut, wbs, wrapper):
     val = await read_val(dut, wbs, cmd, exp);
     assert (val == exp);
 
-    name <= 0;
-    await ClockCycles(dut.wb_clk_i, 5)
-    assert name == 0
+    if gl == 0:
+        name <= 0;
+        await ClockCycles(dut.wb_clk_i, 5)
+        assert name == 0
 
     cmd = CTRL_MSG_IN;
     exp = 0xfffffea;
     val = await read_val(dut, wbs, cmd, exp);
     assert (val == exp);
 
-    assert (idx == 0);
+    if gl == 0:
+        assert (idx == 0);
 
     # Sixteen writes only
     for i in range(16):
@@ -128,23 +134,24 @@ async def test_msg(dut, wbs, wrapper):
         # We write in the loop values.
         exp = i;
 
-        value = int(BinaryValue(str(idx.value)));
-        #dut._log.info("write on loop %x idx=%x" % (i, value));
-        assert (value == i);
+        if gl == 0:
+            value = int(BinaryValue(str(idx.value)));
+            #dut._log.info("write on loop %x idx=%x" % (i, value));
+            assert (value == i);
 
         val = await write_val(dut, wbs, cmd, exp);
         assert (val == 1);
 
         # The internal loop value will increment by 1 after the write,
         # unless it is the 15th (0xf) write.
-        value = int(BinaryValue(str(idx.value)));
-        if i == 15:
-           exp = 0;
-        else:
-           exp = i+1;
 
-        #dut._log.info("after write on loop %x idx=%x" % (i, value));
-        assert (value == exp);
+        if gl == 0:
+            if i == 15:
+                exp = 0;
+            else:
+                exp = i+1;
+            value = int(BinaryValue(str(idx.value)));
+            assert (value == exp);
 
         cmd = CTRL_SHA1_OPS
         if i == 15:
@@ -165,8 +172,7 @@ async def test_msg(dut, wbs, wrapper):
     cmd = CTRL_MSG_IN;
     exp = 0;
     val = await write_val(dut, wbs, cmd, exp);
-    value = int(BinaryValue(str(idx.value)));
-    #dut._log.info("after loop %d val=%s idx=%x" % (i, val, value));
+
     assert (val == 0xfffffea);
 
     # Stop the engine.
@@ -182,6 +188,9 @@ async def test_msg(dut, wbs, wrapper):
     val = await read_val(dut, wbs, cmd, exp);
     assert (val == exp);
 
+    if gl == 1:
+        return
+
     #value = int(BinaryValue(str(name.value)));
     #dut._log.info("msg=%s" % (value));
 
@@ -194,7 +203,12 @@ async def test_msg(dut, wbs, wrapper):
 
         assert (val == i);
 
-async def test_digest(dut, wbs, wrapper):
+async def test_digest(dut, wbs, wrapper, gl):
+
+    # We can't do this because we can't reach in the module and
+    # set the sha1_done on.
+    if gl:
+        return
 
     if wrapper:
         name = dut.sha1_wishbone.sha1_digest;
@@ -332,8 +346,8 @@ async def test_wb_logic(dut):
 
     await test_id(dut, wbs);
 
-    await test_ops(dut, wbs, wrapper);
+    await test_ops(dut, wbs, wrapper, gl);
 
-    await test_msg(dut, wbs, wrapper);
+    await test_msg(dut, wbs, wrapper, gl);
 
-    await test_digest(dut, wbs, wrapper);
+    await test_digest(dut, wbs, wrapper, gl);
