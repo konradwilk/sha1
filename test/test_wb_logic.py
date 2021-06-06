@@ -50,7 +50,7 @@ async def test_irq(dut, wbs, wrapper):
     assert name == 0
 
     val = await write_val(dut, wbs, CTRL_SHA1_OPS, 1);
-    assert(val == 1);
+    assert(val == 2);
 
     await ClockCycles(dut.wb_clk_i, 5)
     assert (name == 1)

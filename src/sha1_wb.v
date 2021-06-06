@@ -90,6 +90,8 @@ module sha1_wb #(
 		    if (transmit)
 			    transmit <= 1'b0;
 
+            if (sha1_reset)
+                sha1_reset <= 1'b0;
 		    /* Read case */
 		    if (wb_active && !wbs_we_i) begin
 			    case (wbs_adr_i)
@@ -141,7 +143,7 @@ module sha1_wb #(
                                 sha1_done <= 0;
                                 sha1_digest_idx <= 0;
                             end
-                            buffer_o <= {22'b0, sha1_loop_idx, sha1_done, sha1_panic, sha1_reset, sha1_on};
+                            buffer_o <= {22'b0, sha1_loop_idx, sha1_done, sha1_panic, wbs_dat_i[1], wbs_dat_i[0]};
                     end
                     CTRL_MSG_IN:
                     begin
