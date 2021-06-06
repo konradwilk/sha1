@@ -305,6 +305,8 @@ module sha1
                 inc_counter <= 1'b0;
               end
             STATE_FINAL: begin
+               if (!on)
+                  state <= STATE_INIT;
               end
             STATE_PANIC: begin
               end

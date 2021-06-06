@@ -187,6 +187,25 @@ async def loop_done(dut, idx, k):
 
     assert (dut.index == 0);
 
+async def loop_final(dut):
+
+    assert (dut.state == STATE_FINAL);
+    assert (dut.on == 1);
+    assert (dut.finish == 1);
+
+    await ClockCycles(dut.clk, 1)
+
+    # Lets toggle the 'on' down, the state should go back to INIT
+    # It takes two cycles?
+    dut.on <= 0;
+    await ClockCycles(dut.clk, 2)
+
+    dut._log.info("state=%d " % (int(dut.state.value)));
+
+    assert (dut.state == STATE_INIT);
+    assert (dut.on == 0);
+    assert (dut.finish == 0);
+
 @cocotb.test()
 async def test_sha1(dut):
 
@@ -206,3 +225,5 @@ async def test_sha1(dut):
     await loop(dut, LOOP_FOUR, 59, 0xCA62C1D6);
 
     await loop_done(dut, 79, 0xf00df00d);
+
+    await loop_final(dut);
