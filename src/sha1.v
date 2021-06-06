@@ -14,7 +14,7 @@ module sha1
     localparam DEFAULT = 32'hf00df00d;
 
     localparam MESSAGE_SIZE = 512;
-    reg [32:0] message[79:0];
+    reg [31:0] message[79:0];
 
     localparam DIGEST_SIZE = 160;
     reg [6:0] index;
@@ -62,7 +62,6 @@ module sha1
         if (reset) begin
             index <= 0;
             state <= STATE_INIT;
-            message[0] <= {MESSAGE_SIZE-1{1'b0}};
             /* TODO: Should they have better pre-canned values? */
             a <= DEFAULT;
             b <= DEFAULT;
@@ -213,19 +212,19 @@ module sha1
                 message[19] <= 0;
                 message[18] <= 0;
                 message[17] <= 0;
-                message[16] <= message_in[511:479];
-                message[15] <= message_in[480:448];
-                message[14] <= message_in[447:416];
-                message[13] <= message_in[415:384];
-                message[12] <= message_in[383:352];
-                message[11] <= message_in[351:320];
-                message[10] <= message_in[319:288];
-                message[9] <= message_in[287:256];
-                message[8] <= message_in[255:223];
-                message[7] <= message_in[223:192];
-                message[6] <= message_in[191:158];
-                message[5] <= message_in[159:126];
-                message[4] <= message_in[159:126];
+                message[16] <= 0;
+                message[15] <= message_in[511:480];
+                message[14] <= message_in[479:448];
+                message[13] <= message_in[447:416];
+                message[12] <= message_in[415:384];
+                message[11] <= message_in[383:352];
+                message[10] <= message_in[351:320];
+                message[9] <= message_in[319:288];
+                message[8] <= message_in[287:256];
+                message[7] <= message_in[255:224];
+                message[6] <= message_in[223:192];
+                message[5] <= message_in[191:160];
+                message[4] <= message_in[159:128];
                 message[3] <= message_in[127:96];
                 message[2] <= message_in[95:64];
                 message[1] <= message_in[63:32];
