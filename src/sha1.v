@@ -8,7 +8,8 @@ module sha1
         input wire on,
         input wire [511:0] message_in,
         output wire [159:0] digest_out,
-        output wire finish
+        output wire finish,
+        output wire [5:0] idx
     );
     localparam DEFAULT = 32'hf00df00d;
 
@@ -314,4 +315,5 @@ module sha1
     assign digest_out = {h0, h1, h3, h4};
     assign finish = (state == STATE_FINAL) ? 1'b1 : 1'b0;
 
+    assign idx = index;
 endmodule

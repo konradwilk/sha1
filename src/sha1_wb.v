@@ -84,7 +84,6 @@ module sha1_wb #(
             sha1_message <= 0;
             sha1_done <= 0;
             sha1_reset <= 1'b1; /* Reset the SHA1 compute engine */
-            sha1_loop_idx <= 0;
             sha1_on <= 0;
 	    end else begin
 		    if (transmit)
@@ -201,7 +200,8 @@ module sha1_wb #(
         .on(sha1_on),
         .message_in(sha1_message),
         .digest_out(sha1_digest),
-        .finish(finish));
+        .finish(finish),
+	.idx(sha1_loop_idx));
 
     assign wbs_ack_o = reset ? 1'b0 : transmit;
 

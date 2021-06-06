@@ -80,13 +80,14 @@ async def test_ops(dut, wbs, wrapper, gl):
     val = await read_val(dut, wbs, cmd, exp);
     assert (val == exp);
 
-    exp = 1;
+    exp = 1; # Turn ON!
     val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
     assert(val == exp);
 
-    exp = 1 << 1 | 0; # Reset and OFF
+    exp = 1 << 1 | 0; # Reset and turn OFF
     val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
-    assert(val == exp);
+    # Ignore the counter.
+    assert((val & 0xf) == exp);
 
     if gl == 0:
         assert name == 0
@@ -159,14 +160,15 @@ async def test_msg(dut, wbs, wrapper, gl):
         else:
           exp = 0x0;
 
+        # 0xf is to ignore the loop counter.
         val = await read_val(dut, wbs, cmd, exp);
-        assert (val == exp);
+        assert (val & 0xf == exp);
 
         val = await read_val(dut, wbs, cmd, exp);
-        assert (val == exp);
+        assert (val & 0xf == exp);
 
         val = await read_val(dut, wbs, cmd, exp);
-        assert (val == exp);
+        assert (val & 0xf == exp);
 
     # Any writes after the sha1_on is set will return -EBUSY
     cmd = CTRL_MSG_IN;
@@ -177,9 +179,10 @@ async def test_msg(dut, wbs, wrapper, gl):
 
     # Stop the engine.
     cmd = CTRL_SHA1_OPS
-    exp = 1 << 1 | 0; # Reset and OFF
+    exp = 1 << 1 | 0; # Reset and turn OFF
     val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
-    assert(val == exp);
+    # Ignore the loop counter.
+    assert(val & 0xf == exp);
 
     # Double check
 
