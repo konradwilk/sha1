@@ -280,6 +280,51 @@ async def test_digest(dut, wbs, wrapper, gl):
     val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
     assert(val == exp);
 
+async def test_engine(dut, wbs, wrapper, gl):
+
+    # Nothing is running, right?
+    cmd = CTRL_SHA1_OPS
+    exp = 0x0;
+    val = await read_val(dut, wbs, cmd, exp);
+    assert (val == exp);
+
+    for i in range(16):
+        cmd = CTRL_MSG_IN;
+        # We write in the loop values.
+        exp = i;
+
+        val = await write_val(dut, wbs, cmd, exp);
+        assert (val == 1);
+
+    cmd = CTRL_SHA1_OPS
+    exp = 0x1; # It should be on
+    val = await read_val(dut, wbs, cmd, exp);
+    assert (val & 0xf == exp);
+
+    # We wait until sha1_done
+    for i in range(200):
+        await ClockCycles(dut.wb_clk_i, 5)
+
+        exp = 1 << 3;
+        val = await read_val(dut, wbs, CTRL_SHA1_OPS, exp);
+        # buffer_o <= {22'b0, sha1_loop_idx, sha1_done, sha1_panic, sha1_reset, sha1_on};
+        sha1_loop_idx = (val & 0xff0) >> 4;
+        state = (val & 0xf);
+        dut._log.info("loop[%d] = loop_idx = %d, state = 0x%x" % (i, sha1_loop_idx, state));
+
+        if (val & exp):
+            break;
+
+    exp = 1 << 3;
+    val = await read_val(dut, wbs, CTRL_SHA1_OPS, exp);
+    assert (val & exp);
+
+    # Five reads only
+    for i in range(5):
+        cmd = CTRL_SHA1_DIGEST;
+        exp = 0;
+        val = await read_val(dut, wbs, CTRL_SHA1_DIGEST, exp);
+        dut._log.info("digest[%x] = val=0x%x" % (i, val));
 
 async def activate_wrapper(dut):
 
@@ -355,3 +400,5 @@ async def test_wb_logic(dut):
     await test_msg(dut, wbs, wrapper, gl);
 
     await test_digest(dut, wbs, wrapper, gl);
+
+    await test_engine(dut, wbs, wrapper, gl);
