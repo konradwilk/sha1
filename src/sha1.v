@@ -86,6 +86,10 @@ module sha1
             copy_values <= 1'b0;
             compute <= 1'b0;
         end else begin
+            /* We are running and someone turned it off. */
+            if ((index > 1) && !on)
+                state <= STATE_INIT;
+
             /* Never should happen. TODO: Remove*/
             if (index > 79) begin
                 panic <= 1'b1;
