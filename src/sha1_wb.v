@@ -168,12 +168,16 @@ module sha1_wb #(
                             'h2 : sha1_message[95:64] <= wbs_dat_i;
                             'h1 : sha1_message[63:32] <= wbs_dat_i;
                             'h0 : sha1_message[31:0] <= wbs_dat_i;
+                            default: begin
+                               sha1_panic <= 1'b1;
+                            end
                           endcase
-                          if (sha1_msg_idx == 'hf) begin
-                            sha1_on <= 1'b1;
-                            sha1_msg_idx <= 0;
-                          end else begin
-                            sha1_msg_idx <= sha1_msg_idx + 1'b1;
+                          if (!transmit) begin
+                            if (sha1_msg_idx == 'hf) begin
+                               sha1_on <= 1'b1;
+                               sha1_msg_idx <= 0;
+                            end else
+                                sha1_msg_idx <= sha1_msg_idx + 1'b1;
                           end
                         end
                     end

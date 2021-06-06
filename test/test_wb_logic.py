@@ -125,30 +125,75 @@ async def test_msg(dut, wbs, wrapper):
     # Sixteen writes only
     for i in range(16):
         cmd = CTRL_MSG_IN;
-        if i == 0:
-           exp = 1;
-        else:
-           exp = 0;
+        # We write in the loop values.
+        exp = i;
+
+        value = int(BinaryValue(str(idx.value)));
+        #dut._log.info("write on loop %x idx=%x" % (i, value));
+        assert (value == i);
 
         val = await write_val(dut, wbs, cmd, exp);
-
         assert (val == 1);
+
+        # The internal loop value will increment by 1 after the write,
+        # unless it is the 15th (0xf) write.
         value = int(BinaryValue(str(idx.value)));
-        dut._log.info("loop %d val=%s idx=%s" % (i, val, value));
-        #assert (value == i);
+        if i == 15:
+           exp = 0;
+        else:
+           exp = i+1;
+
+        #dut._log.info("after write on loop %x idx=%x" % (i, value));
+        assert (value == exp);
 
         cmd = CTRL_SHA1_OPS
-        exp = 0x0;
+        if i == 15:
+          exp = 1;
+        else:
+          exp = 0x0;
+
         val = await read_val(dut, wbs, cmd, exp);
         assert (val == exp);
 
+        val = await read_val(dut, wbs, cmd, exp);
+        assert (val == exp);
 
-    exp = 17;
+        val = await read_val(dut, wbs, cmd, exp);
+        assert (val == exp);
+
+    # Any writes after the sha1_on is set will return -EBUSY
+    cmd = CTRL_MSG_IN;
+    exp = 0;
     val = await write_val(dut, wbs, cmd, exp);
+    value = int(BinaryValue(str(idx.value)));
+    #dut._log.info("after loop %d val=%s idx=%x" % (i, val, value));
     assert (val == 0xfffffea);
 
-    dut._log.info("io_out=%s" % (name));
-    assert name == 1
+    # Stop the engine.
+    cmd = CTRL_SHA1_OPS
+    exp = 1 << 1 | 0; # Reset and OFF
+    val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
+    assert(val == exp);
+
+    # Double check
+
+    cmd = CTRL_SHA1_OPS
+    exp = 0;
+    val = await read_val(dut, wbs, cmd, exp);
+    assert (val == exp);
+
+    #value = int(BinaryValue(str(name.value)));
+    #dut._log.info("msg=%s" % (value));
+
+    # Check that we wrote the value correctly in (basically loop values);
+    for i in range(16):
+       # dut._log.info("%d -> %d" % (512-(i*32), 512-((i+1)*32)))
+        value = str(name.value)[512-((i+1)*32):512-(i*32)];
+        val = int(BinaryValue(value));
+        dut._log.info("msg[%x] = val=%x" % (i, val));
+
+        assert (val == i);
+
 
 async def activate_wrapper(dut):
 
