@@ -247,7 +247,7 @@ async def test_digest(dut, wbs, wrapper, gl):
     dut._log.info("digest=0x%x" % (value));
     # Also set sha1_done.
     done <= 1;
-    
+
     # Five reads only
     for i in range(5):
         value = int(BinaryValue(str(idx.value)));

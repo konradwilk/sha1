@@ -13,6 +13,7 @@ STATE_START = 1;
 LOOP_ONE    = 2;
 LOOP_TWO    = 3;
 LOOP_THREE  = 4;
+LOOP_FOUR   = 5;
 STATE_DONE  = 6;
 STATE_FINAL = 7;
 STATE_PANIC = 8;
@@ -89,7 +90,7 @@ async def loop_one(dut, msg):
 
     #assert (dut.w == int(msg));
 
-    for i in range(16):
+    for i in range(19):
 
         assert (dut.index == i);
 
@@ -144,6 +145,25 @@ async def loop_one(dut, msg):
         b = a;
         a = temp;
 
+
+async def loop(dut, loop_state, idx, k):
+
+    assert (dut.state == loop_state);
+    assert (dut.index == idx);
+    assert (dut.k == k);
+    dut._log.info("before loop state=%d dut.index = %d " % (int(dut.state.value), int(dut.index)));
+
+    for i in range(20):
+
+        dut._log.info("i=%d dut.index = %d " % (i, int(dut.index)));
+        assert (dut.index == i+idx);
+
+        await ClockCycles(dut.clk, 1)
+
+        await ClockCycles(dut.clk, 1)
+
+    dut._log.info("after loop state=%d dut.index = %d " % (int(dut.state.value), int(dut.index)));
+
 @cocotb.test()
 async def test_sha1(dut):
 
@@ -155,3 +175,9 @@ async def test_sha1(dut):
     await payload(dut, int(SHA))
 
     await loop_one(dut, int(SHA))
+
+    await loop(dut, LOOP_TWO, 19, 0x6ED9EBA1);
+
+    await loop(dut, LOOP_THREE, 39, 0x8F1BBCDC);
+
+    await loop(dut, LOOP_FOUR, 59, 0xCA62C1D6);

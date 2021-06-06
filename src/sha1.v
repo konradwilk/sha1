@@ -17,7 +17,7 @@ module sha1
     reg [32:0] message[79:0];
 
     localparam DIGEST_SIZE = 160;
-    reg [5:0] index;
+    reg [6:0] index;
 
     localparam STATE_INIT   = 0;
     localparam STATE_START  = 1;
@@ -98,7 +98,7 @@ module sha1
             end
             /* Increment if allowed to increment counter. */
             if (inc_counter) begin
-                index <= index + 1;
+                index <= index + 1'b1;
                 inc_counter <= 1'b0;
             end
             /*
@@ -300,6 +300,9 @@ module sha1
                 h4 <= h4 + e;
                 state <= STATE_FINAL;
                 index <= 0;
+                copy_values <= 1'b0;
+                compute <= 1'b0;
+                inc_counter <= 1'b0;
               end
             STATE_FINAL: begin
               end
