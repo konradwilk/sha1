@@ -164,6 +164,29 @@ async def loop(dut, loop_state, idx, k):
 
     dut._log.info("after loop state=%d dut.index = %d " % (int(dut.state.value), int(dut.index)));
 
+async def loop_done(dut, idx, k):
+
+    assert (dut.state == STATE_DONE);
+    assert (dut.k == k);
+    assert (dut.index == idx);
+
+    # The finish wire is not set.
+    assert (dut.finish == 0);
+
+    await ClockCycles(dut.clk, 1)
+    assert (dut.index == 0);
+    assert (dut.state == STATE_FINAL);
+
+    # But now it is !
+    assert (dut.finish == 1);
+
+    # Just spin for fun.
+    for i in range(20):
+       await ClockCycles(dut.clk, 1)
+       assert (dut.finish == 1);
+
+    assert (dut.index == 0);
+
 @cocotb.test()
 async def test_sha1(dut):
 
@@ -181,3 +204,5 @@ async def test_sha1(dut):
     await loop(dut, LOOP_THREE, 39, 0x8F1BBCDC);
 
     await loop(dut, LOOP_FOUR, 59, 0xCA62C1D6);
+
+    await loop_done(dut, 79, 0xf00df00d);
