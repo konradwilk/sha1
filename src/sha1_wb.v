@@ -70,6 +70,7 @@ module sha1_wb #(
 
     /* Five reads for the digest. */
     localparam CTRL_SHA1_DIGEST 		= BASE_ADDRESS + 'h10;
+    localparam EBUSY            = 32'hfffffff0; /* -10 */
 
     always @(posedge wb_clk_i) begin
 	    if (reset) begin
@@ -121,7 +122,8 @@ module sha1_wb #(
                                    sha1_digest_idx <= 0;
                                 else
                                     sha1_digest_idx <= sha1_digest_idx + 1'b1;
-                        end
+                        end else
+                            buffer_o <= EBUSY;
                     end
 				    default:
 					    buffer_o <= EINVAL;
