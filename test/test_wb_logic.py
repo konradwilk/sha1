@@ -63,6 +63,71 @@ async def test_irq(dut, wbs, wrapper):
 
     assert(name.value == 0);
 
+async def test_ops(dut, wbs, wrapper):
+
+    if wrapper:
+        name = dut.sha1_wishbone.sha1_on
+    else:
+        name = dut.sha1_on
+
+    name <= 0;
+    await ClockCycles(dut.wb_clk_i, 5)
+    assert name == 0
+
+    cmd = CTRL_SHA1_OPS
+    exp = 0x0;
+    val = await read_val(dut, wbs, cmd, exp);
+    assert (val == exp);
+
+    exp = 1;
+    val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
+    assert(val == exp);
+
+    exp = 1 << 1 | 0; # Reset and OFF
+    val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
+    assert(val == exp);
+
+    assert name == 0
+
+    cmd = CTRL_SHA1_OPS
+    exp = 0x0;
+    val = await read_val(dut, wbs, cmd, exp);
+    assert (val == exp);
+
+    assert name == 0
+
+async def test_msg(dut, wbs, wrapper):
+
+    if wrapper:
+        name = dut.sha1_wishbone.sha1_message;
+    else:
+        name = dut.sha1_message;
+
+    # Noting is running, right?
+    cmd = CTRL_SHA1_OPS
+    exp = 0x0;
+    val = await read_val(dut, wbs, cmd, exp);
+    assert (val == exp);
+
+    name <= 0;
+    await ClockCycles(dut.wb_clk_i, 5)
+    assert name == 0
+
+    cmd = CTRL_MSG_IN;
+    exp = 0xfffffea;
+    val = await read_val(dut, wbs, cmd, exp);
+    assert (val == exp);
+
+    # Sixteen writes only
+    for i in range(16):
+        exp = i;
+        val = await write_val(dut, wbs, cmd, exp);
+
+        assert (val == 1);
+
+    exp = 17;
+    val = await write_val(dut, wbs, cmd, exp);
+    assert (val == 0xfffffea);
 
 async def activate_wrapper(dut):
 
@@ -132,3 +197,6 @@ async def test_wb_logic(dut):
 
     await test_id(dut, wbs);
 
+    await test_ops(dut, wbs, wrapper);
+
+    await test_msg(dut, wbs, wrapper);

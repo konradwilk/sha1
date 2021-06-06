@@ -147,7 +147,11 @@ module sha1_wb #(
                     end
                     CTRL_MSG_IN:
                     begin
-                        case (sha1_msg_idx)
+                        if (sha1_on)
+                            buffer_o <= EINVAL;
+                        else begin
+                          buffer_o <= ACK;
+                          case (sha1_msg_idx)
                             'hf : sha1_message[511:480] <= wbs_dat_i;
                             'he : sha1_message[479:448] <= wbs_dat_i;
                             'hd : sha1_message[447:416] <= wbs_dat_i;
@@ -164,12 +168,13 @@ module sha1_wb #(
                             'h2 : sha1_message[95:64] <= wbs_dat_i;
                             'h1 : sha1_message[63:32] <= wbs_dat_i;
                             'h0 : sha1_message[31:0] <= wbs_dat_i;
-                        endcase
-                        if (sha1_msg_idx == 'hf) begin
+                          endcase
+                          if (sha1_msg_idx == 'hf) begin
                             sha1_on <= 1'b1;
                             sha1_msg_idx <= 0;
-                        end else begin
+                          end else begin
                             sha1_msg_idx <= sha1_msg_idx + 1'b1;
+                          end
                         end
                     end
 			     endcase
