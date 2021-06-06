@@ -119,11 +119,15 @@ module sha1_wb #(
                                                 buffer_o <= sha1_digest[127:96];
                                         'h4:
                                                 buffer_o <= sha1_digest[159:128];
+                                        default:
+                                                sha1_panic <= 1'b1;
                                 endcase
-                                if (sha1_digest_idx == 4)
-                                   sha1_digest_idx <= 0;
-                                else
+                                if (!transmit) begin
+                                  if (sha1_digest_idx == 4)
+                                     sha1_digest_idx <= 0;
+                                  else
                                     sha1_digest_idx <= sha1_digest_idx + 1'b1;
+                                end
                         end else
                             buffer_o <= EBUSY;
                     end

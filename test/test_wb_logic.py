@@ -194,6 +194,75 @@ async def test_msg(dut, wbs, wrapper):
 
         assert (val == i);
 
+async def test_digest(dut, wbs, wrapper):
+
+    if wrapper:
+        name = dut.sha1_wishbone.sha1_digest;
+        idx = dut.sha1_wishbone.sha1_digest_idx;
+        done = dut.sha1_wishbone.sha1_done;
+    else:
+        name = dut.sha1_digest;
+        idx = dut.sha1_digest_idx;
+        done = dut.sha1_done;
+
+    # Nothing is running, right?
+    cmd = CTRL_SHA1_OPS
+    exp = 0x0;
+    val = await read_val(dut, wbs, cmd, exp);
+    assert (val == exp);
+
+    # Which means sha1_done is also off, so we get EBUSY.
+    cmd = CTRL_SHA1_DIGEST;
+    exp = 0xfffffea;
+    val = await read_val(dut, wbs, cmd, exp);
+    value = int(BinaryValue(str(idx.value)));
+
+    val = 0;
+    for i in range(5):
+        val = val | ((i+1) << (i*32))
+        dut._log.info("digest[%x] = val=0x%x" % (i, val));
+
+    name <= val;
+    await ClockCycles(dut.wb_clk_i, 5)
+    assert name == val
+
+    value = int(BinaryValue(str(name.value)));
+    dut._log.info("digest=0x%x" % (value));
+    # Also set sha1_done.
+    done <= 1;
+    
+    # Five reads only
+    for i in range(5):
+        value = int(BinaryValue(str(idx.value)));
+        dut._log.info("read on loop %x idx=%x" % (i, value));
+        assert (value == i);
+
+        cmd = CTRL_SHA1_DIGEST;
+
+        # We read in the loop values + 1.
+        exp = i + 1;
+
+        val = await read_val(dut, wbs, cmd, exp);
+        assert (val == exp);
+
+
+    # Any read after the sha1_done is set will return -EBUSY
+    cmd = CTRL_SHA1_DIGEST;
+    exp = 1;
+    val = await read_val(dut, wbs, cmd, exp);
+
+    value = int(BinaryValue(str(idx.value)));
+    dut._log.info("outside val=%s idx=%x" % (val, value));
+    assert (val == exp);
+
+    # Stop the engine.
+    done <= 0;
+
+    cmd = CTRL_SHA1_OPS
+    exp = 1 << 1 | 0; # Reset and OFF
+    val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
+    assert(val == exp);
+
 
 async def activate_wrapper(dut):
 
@@ -266,3 +335,5 @@ async def test_wb_logic(dut):
     await test_ops(dut, wbs, wrapper);
 
     await test_msg(dut, wbs, wrapper);
+
+    await test_digest(dut, wbs, wrapper);
