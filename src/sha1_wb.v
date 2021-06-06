@@ -135,7 +135,7 @@ module sha1_wb #(
                             buffer_o <= EBUSY;
                     end
 				endcase
-                if (wbs_adr_i[31:8] == 'h300000)
+                if ((wbs_adr_i[31:0] >= BASE_ADDRESS) && (wbs_adr_i <= CTRL_SHA1_DIGEST))
                     transmit <= 1'b1;
 		    end
 		    /* Write case */
@@ -189,7 +189,7 @@ module sha1_wb #(
                         end
                     end
 			     endcase
-                if (wbs_adr_i[31:8] == 'h300000)
+                if ((wbs_adr_i[31:0] >= BASE_ADDRESS) && (wbs_adr_i <= CTRL_SHA1_DIGEST))
                     transmit <= 1'b1;
 		     end
 	     end
