@@ -304,7 +304,8 @@ async def activate_wrapper(dut):
     dut.la_data_in <= 1 << 0
     await ClockCycles(dut.wb_clk_i,2)
 
-    dut.la_data_in <= 0 << 0
+    # Activate is la_data_in[2].
+    dut.la_data_in <= 1 << 2 | 0;
     await ClockCycles(dut.wb_clk_i,1)
 
 @cocotb.test()
