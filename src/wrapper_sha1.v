@@ -92,8 +92,8 @@ module wrapper_sha1  (
             .wbs_sel_i(wbs_sel_i),
             .wbs_dat_i(wbs_dat_i),
             .wbs_adr_i(wbs_adr_i),
-            .wbs_ack_o(wbs_ack_o),
-            .wbs_dat_o(wbs_dat_o));
+            .wbs_ack_o(buf_wbs_ack_o),
+            .wbs_dat_o(buf_wbs_dat_o));
 
 endmodule
 `default_nettype wire
