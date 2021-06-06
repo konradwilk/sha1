@@ -134,8 +134,8 @@ module sha1_wb #(
 			     case (wbs_adr_i)
                     CTRL_SHA1_OPS:
                     begin
-                            sha1_on = wbs_dat_i[0];
-                            sha1_reset = wbs_dat_i[1];
+                            sha1_on <= wbs_dat_i[0];
+                            sha1_reset <= wbs_dat_i[1];
                             if (wbs_dat_i[0]) begin
                                 sha1_msg_idx <= 0;
                                 sha1_done <= 0;
@@ -164,7 +164,7 @@ module sha1_wb #(
                             'h0 : sha1_message[31:0] <= wbs_dat_i;
                         endcase
                         if (sha1_msg_idx == 'hf) begin
-                            sha1_on = 1'b1;
+                            sha1_on <= 1'b1;
                             sha1_msg_idx <= 0;
                         end else begin
                             sha1_msg_idx <= sha1_msg_idx + 1'b1;
