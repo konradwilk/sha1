@@ -4,9 +4,9 @@ set script_dir [file dirname [file normalize [info script]]]
 set ::env(DESIGN_NAME) wrapper_sha1
 
 # Change if needed
-set ::env(VERILOG_FILES) "/work/src/wrapper.v \
+set ::env(VERILOG_FILES) "/work/src/wrapper_sha1.v \
 	/work/src/sha1.v \
-	/work/src/wb_logic.v"
+	/work/src/sha1_wb.v"
 
 # Fill this
 set ::env(CLOCK_PERIOD) "10"
