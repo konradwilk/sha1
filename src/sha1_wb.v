@@ -93,7 +93,7 @@ module sha1_wb #(
                 sha1_reset <= 1'b0;
 
             if (finish)
-                sha1_done <= 1'b0;
+                sha1_done <= 1'b1;
 		    /* Read case */
 		    if (wb_active && !wbs_we_i) begin
 			    case (wbs_adr_i)
