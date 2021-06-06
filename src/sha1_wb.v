@@ -38,6 +38,7 @@ module sha1_wb #(
     reg sha1_reset;
     reg sha1_panic;
     reg sha1_done;
+    wire finish;
     reg [2:0] sha1_digest_idx;
     reg [5:0] sha1_loop_idx;
     reg [6:0] sha1_msg_idx;
@@ -80,10 +81,9 @@ module sha1_wb #(
             transmit <= 1'b0;
             sha1_msg_idx <= 0;
             sha1_digest_idx <= 0;
-            sha1_digest <= 0;
             sha1_message <= 0;
             sha1_done <= 0;
-            sha1_reset <= 0;
+            sha1_reset <= 1'b1; /* Reset the SHA1 compute engine */
             sha1_loop_idx <= 0;
             sha1_on <= 0;
 	    end else begin
@@ -92,6 +92,9 @@ module sha1_wb #(
 
             if (sha1_reset)
                 sha1_reset <= 1'b0;
+
+            if (finish)
+                sha1_done <= 1'b0;
 		    /* Read case */
 		    if (wb_active && !wbs_we_i) begin
 			    case (wbs_adr_i)
@@ -192,7 +195,15 @@ module sha1_wb #(
 	     end
      end
 
-     assign wbs_ack_o = reset ? 1'b0 : transmit;
+    sha1 sha1_compute (
+        .clk(wb_clk_i),
+        .reset(sha1_reset),
+        .on(sha1_on),
+        .message_in(sha1_message),
+        .digest_out(sha1_digest),
+        .finish(finish));
+
+    assign wbs_ack_o = reset ? 1'b0 : transmit;
 
     assign wbs_dat_o = reset ? 32'b0 : buffer_o;
 

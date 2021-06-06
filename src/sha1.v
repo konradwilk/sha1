@@ -7,7 +7,7 @@ module sha1
         input wire reset,
         input wire on,
         input wire [511:0] message_in,
-        output wire [160:0] digest_out,
+        output wire [159:0] digest_out,
         output wire finish
     );
     localparam DEFAULT = 32'hf00df00d;
