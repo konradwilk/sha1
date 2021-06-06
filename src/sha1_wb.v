@@ -125,10 +125,9 @@ module sha1_wb #(
                         end else
                             buffer_o <= EBUSY;
                     end
-				    default:
-					    buffer_o <= EINVAL;
 				endcase
-                transmit <= 1'b1;
+                if (wbs_adr_i[31:8] == 'h300000)
+                    transmit <= 1'b1;
 		    end
 		    /* Write case */
 		    if (wb_active && wbs_we_i && &wbs_sel_i) begin
@@ -172,7 +171,8 @@ module sha1_wb #(
                         end
                     end
 			     endcase
-                 transmit <= 1'b1;
+                if (wbs_adr_i[31:8] == 'h300000)
+                    transmit <= 1'b1;
 		     end
 	     end
      end
