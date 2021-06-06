@@ -100,8 +100,10 @@ async def test_msg(dut, wbs, wrapper):
 
     if wrapper:
         name = dut.sha1_wishbone.sha1_message;
+        idx = dut.sha1_wishbone.sha1_msg_idx;
     else:
         name = dut.sha1_message;
+        idx = dut.sha1_msg_idx;
 
     # Noting is running, right?
     cmd = CTRL_SHA1_OPS
@@ -118,16 +120,35 @@ async def test_msg(dut, wbs, wrapper):
     val = await read_val(dut, wbs, cmd, exp);
     assert (val == exp);
 
+    assert (idx == 0);
+
     # Sixteen writes only
     for i in range(16):
-        exp = i;
+        cmd = CTRL_MSG_IN;
+        if i == 0:
+           exp = 1;
+        else:
+           exp = 0;
+
         val = await write_val(dut, wbs, cmd, exp);
 
         assert (val == 1);
+        value = int(BinaryValue(str(idx.value)));
+        dut._log.info("loop %d val=%s idx=%s" % (i, val, value));
+        #assert (value == i);
+
+        cmd = CTRL_SHA1_OPS
+        exp = 0x0;
+        val = await read_val(dut, wbs, cmd, exp);
+        assert (val == exp);
+
 
     exp = 17;
     val = await write_val(dut, wbs, cmd, exp);
     assert (val == 0xfffffea);
+
+    dut._log.info("io_out=%s" % (name));
+    assert name == 1
 
 async def activate_wrapper(dut):
 
