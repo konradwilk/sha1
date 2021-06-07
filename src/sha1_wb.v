@@ -82,7 +82,6 @@ module sha1_wb #(
             transmit <= 1'b0;
             sha1_msg_idx <= 0;
             sha1_digest_idx <= 0;
-            message <= 0;
             sha1_done <= 0;
             sha1_reset <= 1'b1; /* Reset the SHA1 compute engine */
             sha1_on <= 0;
