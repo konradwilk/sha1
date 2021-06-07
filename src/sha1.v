@@ -7,7 +7,7 @@ module sha1
     input wire reset,
     input wire on,
     input wire [511:0] message_in,
-    output wire [159:0] digest_out,
+    output wire [159:0] digest,
     output wire finish,
     output wire [6:0] idx
 );
@@ -316,7 +316,7 @@ module sha1
     /* Provides the w[index] funcionality */
     assign w = message[index];
 
-    assign digest_out = {h0, h1, h2, h3, h4};
+    assign digest = {h0, h1, h2, h3, h4};
     assign finish = (state == STATE_FINAL) ? 1'b1 : 1'b0;
 
     assign idx = index;

@@ -43,7 +43,7 @@ module sha1_wb #(
     reg [2:0] sha1_digest_idx;
     reg [6:0] sha1_loop_idx;
     reg [6:0] sha1_msg_idx;
-    reg [159:0] sha1_digest;
+    reg [159:0] digest;
     reg [511:0] sha1_message;
     reg transmit;
 
@@ -112,11 +112,11 @@ module sha1_wb #(
                     begin
                         if (sha1_done) begin
                             case (sha1_digest_idx)
-                                'h0: buffer_o <= sha1_digest[31:0];
-                                'h1: buffer_o <= sha1_digest[63:32];
-                                'h2: buffer_o <= sha1_digest[95:64];
-                                'h3: buffer_o <= sha1_digest[127:96];
-                                'h4: buffer_o <= sha1_digest[159:128];
+                                'h0: buffer_o <= digest[31:0];
+                                'h1: buffer_o <= digest[63:32];
+                                'h2: buffer_o <= digest[95:64];
+                                'h3: buffer_o <= digest[127:96];
+                                'h4: buffer_o <= digest[159:128];
                                 default: sha1_panic <= 1'b1;
                             endcase
                             if (!transmit) begin
@@ -194,7 +194,7 @@ module sha1_wb #(
         .reset(sha1_wire_rst),
         .on(sha1_on),
         .message_in(sha1_message),
-        .digest_out(sha1_digest),
+        .digest(digest),
         .finish(finish),
         .idx(sha1_loop_idx));
 

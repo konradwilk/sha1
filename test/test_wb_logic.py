@@ -214,11 +214,11 @@ async def test_digest(dut, wbs, wrapper, gl):
         return
 
     if wrapper:
-        name = dut.sha1_wishbone.sha1_digest;
+        name = dut.sha1_wishbone.digest;
         idx = dut.sha1_wishbone.sha1_digest_idx;
         done = dut.sha1_wishbone.sha1_done;
     else:
-        name = dut.sha1_digest;
+        name = dut.digest;
         idx = dut.sha1_digest_idx;
         done = dut.sha1_done;
 
