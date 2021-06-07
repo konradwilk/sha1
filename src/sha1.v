@@ -231,7 +231,7 @@ module sha1
                     message[0] <= message_in[31:0];
 
                     state <= LOOP_ONE;
-                    k = 32'h5A827999;
+                    k <= 32'h5A827999;
                     index <= 0;
                     inc_counter <= 1'b1;
                     compute <= 1'b1;
