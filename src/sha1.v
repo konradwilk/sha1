@@ -62,24 +62,7 @@ module sha1
         if (reset) begin
             index <= 0;
             state <= STATE_INIT;
-            /* TODO: Should they have better pre-canned values? */
-            a <= DEFAULT;
-            b <= DEFAULT;
-            c <= DEFAULT;
-            d <= DEFAULT;
-            e <= DEFAULT;
-            k <= DEFAULT;
-            h0 <= DEFAULT;
-            h1 <= DEFAULT;
-            h2 <= DEFAULT;
-            h3 <= DEFAULT;
-            h4 <= DEFAULT;
             temp <= DEFAULT;
-            a_old <= DEFAULT;
-            b_old <= DEFAULT;
-            c_old <= DEFAULT;
-            d_old <= DEFAULT;
-            e_old <= DEFAULT;
             index <= 0;
             panic <= 0;
             inc_counter <= 1'b0;
