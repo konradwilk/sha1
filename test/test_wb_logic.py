@@ -104,10 +104,10 @@ async def test_msg(dut, wbs, wrapper, gl):
 
     if gl == 0:
         if wrapper:
-            name = dut.sha1_wishbone.sha1_message;
+            name = dut.sha1_wishbone.message;
             idx = dut.sha1_wishbone.sha1_msg_idx;
         else:
-            name = dut.sha1_message;
+            name = dut.message;
             idx = dut.sha1_msg_idx;
 
     # Noting is running, right?

@@ -44,7 +44,7 @@ module sha1_wb #(
     reg [6:0] sha1_loop_idx;
     reg [6:0] sha1_msg_idx;
     reg [159:0] digest;
-    reg [511:0] sha1_message;
+    reg [511:0] message;
     reg transmit;
 
     /* CTRL_GET parameters. */
@@ -82,7 +82,7 @@ module sha1_wb #(
             transmit <= 1'b0;
             sha1_msg_idx <= 0;
             sha1_digest_idx <= 0;
-            sha1_message <= 0;
+            message <= 0;
             sha1_done <= 0;
             sha1_reset <= 1'b1; /* Reset the SHA1 compute engine */
             sha1_on <= 0;
@@ -153,22 +153,22 @@ module sha1_wb #(
                         else begin
                             buffer_o <= ACK;
                             case (sha1_msg_idx)
-                                'hf : sha1_message[511:480] <= wbs_dat_i;
-                                'he : sha1_message[479:448] <= wbs_dat_i;
-                                'hd : sha1_message[447:416] <= wbs_dat_i;
-                                'hc : sha1_message[415:384] <= wbs_dat_i;
-                                'hb : sha1_message[383:352] <= wbs_dat_i;
-                                'ha : sha1_message[351:320] <= wbs_dat_i;
-                                'h9 : sha1_message[319:288] <= wbs_dat_i;
-                                'h8 : sha1_message[287:256] <= wbs_dat_i;
-                                'h7 : sha1_message[255:224] <= wbs_dat_i;
-                                'h6 : sha1_message[223:192] <= wbs_dat_i;
-                                'h5 : sha1_message[191:160] <= wbs_dat_i;
-                                'h4 : sha1_message[159:128] <= wbs_dat_i;
-                                'h3 : sha1_message[127:96] <= wbs_dat_i;
-                                'h2 : sha1_message[95:64] <= wbs_dat_i;
-                                'h1 : sha1_message[63:32] <= wbs_dat_i;
-                                'h0 : sha1_message[31:0] <= wbs_dat_i;
+                                'hf : message[511:480] <= wbs_dat_i;
+                                'he : message[479:448] <= wbs_dat_i;
+                                'hd : message[447:416] <= wbs_dat_i;
+                                'hc : message[415:384] <= wbs_dat_i;
+                                'hb : message[383:352] <= wbs_dat_i;
+                                'ha : message[351:320] <= wbs_dat_i;
+                                'h9 : message[319:288] <= wbs_dat_i;
+                                'h8 : message[287:256] <= wbs_dat_i;
+                                'h7 : message[255:224] <= wbs_dat_i;
+                                'h6 : message[223:192] <= wbs_dat_i;
+                                'h5 : message[191:160] <= wbs_dat_i;
+                                'h4 : message[159:128] <= wbs_dat_i;
+                                'h3 : message[127:96] <= wbs_dat_i;
+                                'h2 : message[95:64] <= wbs_dat_i;
+                                'h1 : message[63:32] <= wbs_dat_i;
+                                'h0 : message[31:0] <= wbs_dat_i;
                                 default: begin
                                     sha1_panic <= 1'b1;
                                 end
@@ -193,7 +193,7 @@ module sha1_wb #(
         .clk(wb_clk_i),
         .reset(sha1_wire_rst),
         .on(sha1_on),
-        .message_in(sha1_message),
+        .message_in(message),
         .digest(digest),
         .finish(finish),
         .idx(sha1_loop_idx));
