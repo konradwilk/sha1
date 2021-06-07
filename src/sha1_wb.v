@@ -36,6 +36,7 @@ module sha1_wb #(
 
     reg sha1_on;
     reg sha1_reset;
+    wire sha1_wire_rst;
     reg sha1_panic;
     reg sha1_done;
     wire finish;
@@ -190,12 +191,14 @@ module sha1_wb #(
 
     sha1 sha1_compute (
         .clk(wb_clk_i),
-        .reset(sha1_reset),
+        .reset(sha1_wire_rst),
         .on(sha1_on),
         .message_in(sha1_message),
         .digest_out(sha1_digest),
         .finish(finish),
         .idx(sha1_loop_idx));
+
+    assign sha1_wire_rst = reset ? 1'b1 : sha1_reset;
 
     assign wbs_ack_o = reset ? 1'b0 : transmit;
 
