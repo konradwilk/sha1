@@ -28,7 +28,7 @@ module sha1
     localparam STATE_DONE   = 6;
     localparam STATE_FINAL  = 7;
     localparam STATE_PANIC  = 8;
-    reg [4:0] state;
+    reg [3:0] state;
 
     wire [31:0] w;
 
