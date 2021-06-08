@@ -5,18 +5,11 @@ set ::env(DESIGN_NAME) wrapper_sha1
 
 # Change if needed
 set ::env(VERILOG_FILES) "/work/src/wrapper_sha1.v \
-	/work/src/sha1.v \
 	/work/src/sha1_wb.v"
 
 # Fill this
 set ::env(CLOCK_PERIOD) "10"
 set ::env(CLOCK_PORT) "wb_clk_i"
-
-set ::env(DIE_AREA) "0 0 300 300"
-set ::env(FP_SIZING) absolute
-
-set ::env(DESIGN_IS_CORE) 0
-set ::env(GLB_RT_MAXLAYER) 5
 
 set ::env(SYNTH_DEFINES) "MPRJ_IO_PADS=38"
 
@@ -30,7 +23,4 @@ set ::env(GND_NETS) [list {vssd1} {vssd2} {vssa1} {vssa2}]
 
 set ::env(FP_PIN_ORDER_CFG) $script_dir/pin_order.cfg
 
-set ::env(RUN_CVC) 0
 
-#set ::env(RUN_KLAYOUT_XOR) 0
-#set ::env(RUN_KLAYOUT_DRC) 0
