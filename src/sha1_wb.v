@@ -116,6 +116,7 @@ module sha1_wb #(
     /* Five reads for the digest. */
     localparam CTRL_SHA1_DIGEST 		= BASE_ADDRESS + 'h10;
     localparam EBUSY            = 32'hfffffff0; /* -10 */
+    localparam CTRL_PANIC 			= BASE_ADDRESS + 'h14;
 
     always @(posedge wb_clk_i) begin
         if (reset) begin
@@ -170,8 +171,10 @@ module sha1_wb #(
                         end else
                             buffer_o <= EBUSY;
                     end
+                    CTRL_PANIC:
+                        buffer_o <= {31'b0, sha1_panic};
                 endcase
-                if ((wbs_adr_i[31:0] >= BASE_ADDRESS) && (wbs_adr_i <= CTRL_SHA1_DIGEST))
+                if ((wbs_adr_i[31:0] >= BASE_ADDRESS) && (wbs_adr_i <= CTRL_PANIC))
                     transmit <= 1'b1;
             end
 		    /* Write case */
@@ -224,8 +227,14 @@ module sha1_wb #(
                             end
                         end
                     end
+                    CTRL_PANIC:
+                    begin
+                        sha1_panic <= 1'b1;
+                        buffer <= wbs_dat_i;
+                        buffer_o <= ACK;
+                    end
                 endcase
-                if ((wbs_adr_i[31:0] >= BASE_ADDRESS) && (wbs_adr_i <= CTRL_SHA1_DIGEST))
+                if ((wbs_adr_i[31:0] >= BASE_ADDRESS) && (wbs_adr_i <= CTRL_PANIC))
                     transmit <= 1'b1;
             end
         end
