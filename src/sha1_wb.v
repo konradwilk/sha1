@@ -38,7 +38,6 @@ module sha1_wb #(
 
     reg sha1_on;
     reg sha1_reset;
-    wire sha1_wire_rst;
     reg sha1_panic;
     reg sha1_done;
     wire finish;
