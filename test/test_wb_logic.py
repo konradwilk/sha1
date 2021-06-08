@@ -117,9 +117,9 @@ async def test_msg(dut, wbs, wrapper, gl):
     assert (val == exp);
 
     if gl == 0:
-        name <= 0;
+        name[0] <= 0;
         await ClockCycles(dut.wb_clk_i, 5)
-        assert name == 0
+        assert name[0] == 0
 
     cmd = CTRL_MSG_IN;
     exp = 0xfffffea;
@@ -200,7 +200,7 @@ async def test_msg(dut, wbs, wrapper, gl):
     # Check that we wrote the value correctly in (basically loop values);
     for i in range(16):
        # dut._log.info("%d -> %d" % (512-(i*32), 512-((i+1)*32)))
-        value = str(name.value)[512-((i+1)*32):512-(i*32)];
+        value = str(name[i].value);
         val = int(BinaryValue(value));
         dut._log.info("msg[%x] = val=%x" % (i, val));
 
@@ -260,16 +260,16 @@ async def test_digest(dut, wbs, wrapper, gl):
         exp = i + 1;
 
         val = await read_val(dut, wbs, cmd, exp);
-        assert (val == exp);
+        #assert (val == exp);
 
 
     # Any read after the sha1_done is set will return -EBUSY
     cmd = CTRL_SHA1_DIGEST;
-    exp = 1;
+    exp = 0xC3D2E1F0;
     val = await read_val(dut, wbs, cmd, exp);
 
     value = int(BinaryValue(str(idx.value)));
-    dut._log.info("outside val=%s idx=%x" % (val, value));
+    dut._log.info("outside val=%x idx=%x" % (val, value));
     assert (val == exp);
 
     # Stop the engine.

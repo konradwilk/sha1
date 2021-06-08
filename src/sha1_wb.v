@@ -9,7 +9,8 @@
 
 module sha1_wb #(
     parameter    [31:0] BASE_ADDRESS   = 32'h30000024,
-    parameter  IDX_WIDTH = 6
+    parameter  IDX_WIDTH = 6,
+    parameter  DATA_WIDTH = 32
     ) (
     input wire reset,
 
@@ -42,11 +43,52 @@ module sha1_wb #(
     reg sha1_done;
     wire finish;
     reg [2:0] sha1_digest_idx;
-    reg [IDX_WIDTH:0] index;
     reg [6:0] sha1_msg_idx;
-    reg [159:0] digest;
-    reg [511:0] message;
     reg transmit;
+
+    wire [159:0] digest;
+    reg [DATA_WIDTH-1:0] message[79:0];
+    reg [IDX_WIDTH:0] index;
+
+    localparam STATE_INIT   = 0;
+    localparam STATE_START  = 1;
+    localparam LOOP_ONE     = 2; /* Really  0 <= i <= 19 */
+    localparam LOOP_TWO     = 3; /*         20        39 */
+    localparam LOOP_THREE   = 4; /*         40        59 */
+    localparam LOOP_FOUR    = 5; /*         60        79 */
+    localparam STATE_DONE   = 6;
+    localparam STATE_FINAL  = 7;
+    localparam STATE_PANIC  = 8;
+    reg [3:0] state;
+
+    wire [DATA_WIDTH-1:0] w;
+
+    reg [DATA_WIDTH-1:0] a;
+    reg [DATA_WIDTH-1:0] a_old;
+    reg [DATA_WIDTH-1:0] b;
+    reg [DATA_WIDTH-1:0] b_old;
+    reg [DATA_WIDTH-1:0] c;
+    reg [DATA_WIDTH-1:0] c_old;
+    reg [DATA_WIDTH-1:0] d;
+    reg [DATA_WIDTH-1:0] d_old;
+    reg [DATA_WIDTH-1:0] e;
+    reg [DATA_WIDTH-1:0] e_old;
+
+    reg [DATA_WIDTH-1:0] k;
+    reg [DATA_WIDTH-1:0] f;
+    reg [DATA_WIDTH-1:0] temp;
+    reg [DATA_WIDTH-1:0] temp_old;
+
+    reg [DATA_WIDTH-1:0] h0;
+    reg [DATA_WIDTH-1:0] h1;
+    reg [DATA_WIDTH-1:0] h2;
+    reg [DATA_WIDTH-1:0] h3;
+    reg [DATA_WIDTH-1:0] h4;
+
+    reg panic;
+    reg inc_counter;
+    reg copy_values;
+    reg compute;
 
     /* CTRL_GET parameters. */
     localparam CTRL_GET_NR		= BASE_ADDRESS;
@@ -85,7 +127,6 @@ module sha1_wb #(
             sha1_digest_idx <= 0;
             sha1_done <= 0;
             sha1_reset <= 1'b1; /* Reset the SHA1 compute engine */
-            sha1_on <= 0;
         end else begin
             if (transmit)
                 transmit <= 1'b0;
@@ -112,11 +153,11 @@ module sha1_wb #(
                     begin
                         if (sha1_done) begin
                             case (sha1_digest_idx)
-                                'h0: buffer_o <= digest[31:0];
-                                'h1: buffer_o <= digest[63:32];
-                                'h2: buffer_o <= digest[95:64];
-                                'h3: buffer_o <= digest[127:96];
-                                'h4: buffer_o <= digest[159:128];
+                                'h0: buffer_o <= h4;
+                                'h1: buffer_o <= h3;
+                                'h2: buffer_o <= h2;
+                                'h3: buffer_o <= h1;
+                                'h4: buffer_o <= h0;
                                 default: sha1_panic <= 1'b1;
                             endcase
                             if (!transmit) begin
@@ -153,22 +194,22 @@ module sha1_wb #(
                         else begin
                             buffer_o <= ACK;
                             case (sha1_msg_idx)
-                                'hf : message[511:480] <= wbs_dat_i;
-                                'he : message[479:448] <= wbs_dat_i;
-                                'hd : message[447:416] <= wbs_dat_i;
-                                'hc : message[415:384] <= wbs_dat_i;
-                                'hb : message[383:352] <= wbs_dat_i;
-                                'ha : message[351:320] <= wbs_dat_i;
-                                'h9 : message[319:288] <= wbs_dat_i;
-                                'h8 : message[287:256] <= wbs_dat_i;
-                                'h7 : message[255:224] <= wbs_dat_i;
-                                'h6 : message[223:192] <= wbs_dat_i;
-                                'h5 : message[191:160] <= wbs_dat_i;
-                                'h4 : message[159:128] <= wbs_dat_i;
-                                'h3 : message[127:96] <= wbs_dat_i;
-                                'h2 : message[95:64] <= wbs_dat_i;
-                                'h1 : message[63:32] <= wbs_dat_i;
-                                'h0 : message[31:0] <= wbs_dat_i;
+                                'hf : message[15] <= wbs_dat_i;
+                                'he : message[14] <= wbs_dat_i;
+                                'hd : message[13] <= wbs_dat_i;
+                                'hc : message[12] <= wbs_dat_i;
+                                'hb : message[11] <= wbs_dat_i;
+                                'ha : message[10] <= wbs_dat_i;
+                                'h9 : message[9] <= wbs_dat_i;
+                                'h8 : message[8] <= wbs_dat_i;
+                                'h7 : message[7] <= wbs_dat_i;
+                                'h6 : message[6] <= wbs_dat_i;
+                                'h5 : message[5] <= wbs_dat_i;
+                                'h4 : message[4] <= wbs_dat_i;
+                                'h3 : message[3] <= wbs_dat_i;
+                                'h2 : message[2] <= wbs_dat_i;
+                                'h1 : message[1] <= wbs_dat_i;
+                                'h0 : message[0] <= wbs_dat_i;
                                 default: begin
                                     sha1_panic <= 1'b1;
                                 end
@@ -189,16 +230,168 @@ module sha1_wb #(
         end
     end
 
-    sha1 sha1_compute (
-        .clk(wb_clk_i),
-        .reset(sha1_wire_rst),
-        .on(sha1_on),
-        .message_in(message),
-        .digest(digest),
-        .finish(finish),
-        .idx(index));
+    always @(posedge wb_clk_i) begin
+        if (reset || sha1_reset) begin
+            state <= STATE_INIT;
+            temp <= DEFAULT;
+            index <= 0;
+            panic <= 0;
+            inc_counter <= 1'b0;
+            copy_values <= 1'b0;
+            compute <= 1'b0;
+        end else begin
+            /* We are running and someone turned it off. */
+            if ((index > 1) && !sha1_on)
+                state <= STATE_INIT;
 
-    assign sha1_wire_rst = reset ? 1'b1 : sha1_reset;
+            /* Never should happen. TODO: Remove*/
+            if (index > 79) begin
+                panic <= 1'b1;
+                state <= STATE_PANIC;
+            end
+            /* Increment if allowed to increment counter. */
+            if (inc_counter) begin
+                index <= index + 1'b1;
+                inc_counter <= 1'b0;
+            end
+            /*
+             * Every LOOP_ call ends up with copying the data, so
+             * make it generic
+             */
+            if (compute) begin
+                a_old <= a;
+                b_old <= b;
+                c_old <= c;
+                d_old <= d;
+            end
+            if (copy_values) begin
+                e <= d_old;
+                d <= c_old;
+                c <= b_old << 30; /* TODO: Does this even work in one clock ? */
+                b <= a_old;
+                a <= temp;
+                copy_values <= 1'b0;
+                compute <= 1'b1;
+                inc_counter <= 1'b1;
+            end
+            /*
+             * For t = 16 to 79
+             * w[i] = (w[i-3] xor w[i-8] xor w[i-14] xor w[i-16]) leftrotate 1
+             *
+             * This means we need this ready before we get to index=16 hence
+             * the +1 adjustment for every offset.
+             */
+            if (index >= 15) begin
+                message[index+1] <= (message[index-3+1] ^ message[index-8+1] ^ message[index-14+1] ^ message[index-16+1]) << 1;
+            end
+            case (state)
+                STATE_INIT: begin
+                    if (sha1_on)
+                        state <= STATE_START;
+                    else
+                        state <= STATE_INIT;
+                end
+                STATE_START: begin
+                    a <= 32'h67452301;
+                    h0 <= 32'h67452301;
+                    b <= 32'hEFCDAB89;
+                    h1 <= 32'hEFCDAB89;
+                    c <= 32'h98BADCFE;
+                    h2 <= 32'h98BADCFE;
+                    d <= 32'h10325476;
+                    h3 <=  32'h10325476;
+                    e <= 32'hC3D2E1F0;
+                    h4 <= 32'hC3D2E1F0;
+
+                    state <= LOOP_ONE;
+                    k <= 32'h5A827999;
+                    index <= 0;
+                    inc_counter <= 1'b1;
+                    compute <= 1'b1;
+                    copy_values <= 1'b0;
+                end
+
+                LOOP_ONE: begin
+                    if (index == 19) begin
+                        state <= LOOP_TWO;
+                        k <= 32'h6ED9EBA1;
+                    end
+
+                    if (compute) begin
+                    /* f = (b and c) or ((not b) and d) */
+                    /* temp = (a leftrotate 5) + f + e + k + w[i] */
+                        temp <= (a << 5) + ((b & c) | (~b) & d) + e + k + w;
+                        copy_values <= 1'b1;
+                        compute <= 1'b0;
+                    end
+                end
+                LOOP_TWO: begin
+                    if (index == 39) begin
+                        state <= LOOP_THREE;
+                        k <= 32'h8F1BBCDC;
+                    end
+                    if (compute) begin
+                    /* f = b xor c xor d */
+                    /* temp = (a leftrotate 5) + f + e + k + w[i] */
+                        temp <= (a << 5) + (b ^ c ^ d) + e + k + w;
+                        copy_values <= 1'b1;
+                        compute <= 1'b0;
+                    end
+                end
+                LOOP_THREE: begin
+                    if (index == 59) begin
+                        state <= LOOP_FOUR;
+                        k <= 32'hCA62C1D6;
+                    end
+                    if (compute) begin
+                    /* f = (b and c) or (b and d) or (c and d) */
+                    /* temp = (a leftrotate 5) + f + e + k + w[i] */
+                        temp <= (a << 5) + ((b & c) | (b & d) | (c & d)) + e + k + w;
+                        copy_values <= 1'b1;
+                        compute <= 1'b0;
+                    end
+                end
+                LOOP_FOUR: begin
+                    if (index == 79) begin
+                        state <= STATE_DONE;
+                        k <= DEFAULT;
+                    end
+                    if (compute) begin
+                    /* f = b xor c xor d
+                    /* temp = (a leftrotate 5) + f + e + k + w[i] */
+                        temp <= (a << 5) + (b ^ c ^ d) + e + k + w;
+                        copy_values <= 1'b1;
+                        compute <= 1'b0;
+                    end
+                end
+                STATE_DONE: begin
+                    h0 <= h0 + a;
+                    h1 <= h1 + b;
+                    h2 <= h2 + c;
+                    h3 <= h3 + d;
+                    h4 <= h4 + e;
+                    state <= STATE_FINAL;
+                    index <= 0;
+                    copy_values <= 1'b0;
+                    compute <= 1'b0;
+                    inc_counter <= 1'b0;
+                end
+                STATE_FINAL: begin
+                    if (!sha1_on)
+                        state <= STATE_INIT;
+                end
+                STATE_PANIC: begin
+                end
+            endcase
+        end
+    end
+
+    /* Provides the w[index] funcionality */
+    assign w = message[index];
+
+    assign digest = {h0, h1, h2, h3, h4};
+
+    assign finish = (state == STATE_FINAL) ? 1'b1 : 1'b0;
 
     assign wbs_ack_o = reset ? 1'b0 : transmit;
 

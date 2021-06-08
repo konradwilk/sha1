@@ -26,35 +26,40 @@ INITIAL_H4  = 0xC3D2E1F0;
 
 async def reset(dut):
 
-    dut.on <= 0;
+    dut.sha1_on <= 0;
     dut.reset <= 1
-    await ClockCycles(dut.clk, 5)
+    await ClockCycles(dut.wb_clk_i, 5)
     dut.reset <= 0
 
 async def payload(dut, msg):
 
     assert (dut.state == STATE_INIT);
 
-    await ClockCycles(dut.clk, 5)
+    await ClockCycles(dut.wb_clk_i, 5)
 
-    dut.message_in <= msg;
+    for i in range(len(dut.message)):
+       dut.message[i] <= 0;
+
+    dut.message[0] <= 0x28;
+    dut.message[14] <= 0x65800000;
+    dut.message[15] <= 0x61626364;
 
     assert (dut.state == STATE_INIT);
 
-    await ClockCycles(dut.clk, 1)
+    await ClockCycles(dut.wb_clk_i, 1)
 
-    dut.on <= 1;
-    await ClockCycles(dut.clk, 1)
+    dut.sha1_on <= 1;
+    await ClockCycles(dut.wb_clk_i, 1)
     assert (dut.state == STATE_INIT);
 
-    await ClockCycles(dut.clk, 1)
+    await ClockCycles(dut.wb_clk_i, 1)
     assert (dut.state == STATE_START);
 
 
 async def loop_one(dut, msg):
 
     assert (dut.state == STATE_START);
-    await ClockCycles(dut.clk, 1)
+    await ClockCycles(dut.wb_clk_i, 1)
 
     for i in range(len(dut.message)):
         dut._log.info("%d = [%s]" % (i, hex(BinaryValue(str(dut.message[i].value)))));
@@ -109,7 +114,7 @@ async def loop_one(dut, msg):
         assert (dut.copy_values == 0);
 
         # Crank it and ..
-        await ClockCycles(dut.clk, 1)
+        await ClockCycles(dut.wb_clk_i, 1)
 
         dut._log.info("i=%d dut.temp = %x temp=%x" % (i, int(dut.temp), temp));
 
@@ -128,7 +133,7 @@ async def loop_one(dut, msg):
         assert (dut.d_old == d);
 
         # Crank it and we have copied values over
-        await ClockCycles(dut.clk, 1)
+        await ClockCycles(dut.wb_clk_i, 1)
 
         assert (dut.compute == 1);
         assert (dut.copy_values == 0);
@@ -158,9 +163,9 @@ async def loop(dut, loop_state, idx, k):
         dut._log.info("i=%d dut.index = %d " % (i, int(dut.index)));
         assert (dut.index == i+idx);
 
-        await ClockCycles(dut.clk, 1)
+        await ClockCycles(dut.wb_clk_i, 1)
 
-        await ClockCycles(dut.clk, 1)
+        await ClockCycles(dut.wb_clk_i, 1)
 
     dut._log.info("after loop state=%d dut.index = %d " % (int(dut.state.value), int(dut.index)));
 
@@ -173,7 +178,7 @@ async def loop_done(dut, idx, k):
     # The finish wire is not set.
     assert (dut.finish == 0);
 
-    await ClockCycles(dut.clk, 1)
+    await ClockCycles(dut.wb_clk_i, 1)
     assert (dut.index == 0);
     assert (dut.state == STATE_FINAL);
 
@@ -182,7 +187,7 @@ async def loop_done(dut, idx, k):
 
     # Just spin for fun.
     for i in range(20):
-       await ClockCycles(dut.clk, 1)
+       await ClockCycles(dut.wb_clk_i, 1)
        assert (dut.finish == 1);
 
     assert (dut.index == 0);
@@ -190,26 +195,26 @@ async def loop_done(dut, idx, k):
 async def loop_final(dut):
 
     assert (dut.state == STATE_FINAL);
-    assert (dut.on == 1);
+    assert (dut.sha1_on == 1);
     assert (dut.finish == 1);
 
-    await ClockCycles(dut.clk, 1)
+    await ClockCycles(dut.wb_clk_i, 1)
 
     # Lets toggle the 'on' down, the state should go back to INIT
     # It takes two cycles?
-    dut.on <= 0;
-    await ClockCycles(dut.clk, 2)
+    dut.sha1_on <= 0;
+    await ClockCycles(dut.wb_clk_i, 2)
 
     dut._log.info("state=%d " % (int(dut.state.value)));
 
     assert (dut.state == STATE_INIT);
-    assert (dut.on == 0);
+    assert (dut.sha1_on == 0);
     assert (dut.finish == 0);
 
 @cocotb.test()
 async def test_sha1(dut):
 
-    clock = Clock(dut.clk, 10, units="us")
+    clock = Clock(dut.wb_clk_i, 10, units="us")
     cocotb.fork(clock.start())
 
     await reset(dut)

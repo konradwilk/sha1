@@ -5,11 +5,10 @@ mode prove
 smtbmc
 
 [script]
-read -formal wrapper_sha1.v sha1.v sha1_wb.v
+read -formal wrapper_sha1.v sha1_wb.v
 prep -top wrapper_sha1
 
 [files]
 src/wrapper_sha1.v
 src/properties.v
-src/sha1.v
 src/sha1_wb.v

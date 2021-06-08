@@ -1,6 +1,6 @@
 
 PROJECT = fpga/sha1
-SOURCES= src/sha1.v src/wrapper_sha1.v src/sha1_wb.v
+SOURCES= src/wrapper_sha1.v src/sha1_wb.v
 ICEBREAKER_DEVICE = up5k
 ICEBREAKER_PIN_DEF = fpga/icebreaker.pcf
 ICEBREAKER_PACKAGE = sg48
@@ -52,7 +52,7 @@ done/results/lvs/wrapper_sha1.lvs.powered.v:
 
 covered:
 	$(MAKE) test_wrapper
-	covered score -t wrapper_sha1 -I src/ -v src/wrapper.v -v src/wb_logic.v -v src/sha1.v -vcd wrapper.vcd -D MPRJ_IO_PADS=38 -i wrapper_sha1 -o final.cdd
+	covered score -t wrapper_sha1 -I src/ -v src/wrapper.v -v src/wb_logic.v -v src/sha1_wb.v -vcd wrapper.vcd -D MPRJ_IO_PADS=38 -i wrapper_sha1 -o final.cdd
 	covered report -d v final.cdd
 
 test_lvs_wrapper:
@@ -75,7 +75,7 @@ multi_project: gds
 test_sha1:
 	rm -rf sim_build/
 	mkdir sim_build/
-	iverilog -o sim_build/sim.vvp -DMPRJ_IO_PADS=38 -s sha1 -s dump -g2012 $(SOURCES) test/dump_sha1.v
+	iverilog -o sim_build/sim.vvp -DMPRJ_IO_PADS=38 -s sha1_wb -s dump -g2012 $(SOURCES) test/dump_sha1.v
 	PYTHONOPTIMIZE=${NOASSERT} MODULE=test.test_sha1 vvp -M $$(cocotb-config --prefix)/cocotb/libs -m libcocotbvpi_icarus sim_build/sim.vvp
 	! grep failure results.xml
 
