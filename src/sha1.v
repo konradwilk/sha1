@@ -1,7 +1,8 @@
 `default_nettype none
 `timescale 1ns/1ns
 
-module sha1 #(parameter IDX_WIDTH=6)
+module sha1 #(parameter IDX_WIDTH=6,
+              parameter DATA_WIDTH=32)
    (
     input wire clk,
     input wire reset,
@@ -13,7 +14,7 @@ module sha1 #(parameter IDX_WIDTH=6)
 );
     localparam DEFAULT = 32'hf00df00d;
 
-    reg [31:0] message[79:0];
+    reg [DATA_WIDTH-1:0] message[79:0];
     reg [IDX_WIDTH:0] index;
 
     localparam STATE_INIT   = 0;
@@ -27,29 +28,29 @@ module sha1 #(parameter IDX_WIDTH=6)
     localparam STATE_PANIC  = 8;
     reg [3:0] state;
 
-    wire [31:0] w;
+    wire [DATA_WIDTH-1:0] w;
 
-    reg [31:0] a;
-    reg [31:0] a_old;
-    reg [31:0] b;
-    reg [31:0] b_old;
-    reg [31:0] c;
-    reg [31:0] c_old;
-    reg [31:0] d;
-    reg [31:0] d_old;
-    reg [31:0] e;
-    reg [31:0] e_old;
+    reg [DATA_WIDTH-1:0] a;
+    reg [DATA_WIDTH-1:0] a_old;
+    reg [DATA_WIDTH-1:0] b;
+    reg [DATA_WIDTH-1:0] b_old;
+    reg [DATA_WIDTH-1:0] c;
+    reg [DATA_WIDTH-1:0] c_old;
+    reg [DATA_WIDTH-1:0] d;
+    reg [DATA_WIDTH-1:0] d_old;
+    reg [DATA_WIDTH-1:0] e;
+    reg [DATA_WIDTH-1:0] e_old;
 
-    reg [31:0] k;
-    reg [31:0] f;
-    reg [31:0] temp;
-    reg [31:0] temp_old;
+    reg [DATA_WIDTH-1:0] k;
+    reg [DATA_WIDTH-1:0] f;
+    reg [DATA_WIDTH-1:0] temp;
+    reg [DATA_WIDTH-1:0] temp_old;
 
-    reg [31:0] h0;
-    reg [31:0] h1;
-    reg [31:0] h2;
-    reg [31:0] h3;
-    reg [31:0] h4;
+    reg [DATA_WIDTH-1:0] h0;
+    reg [DATA_WIDTH-1:0] h1;
+    reg [DATA_WIDTH-1:0] h2;
+    reg [DATA_WIDTH-1:0] h3;
+    reg [DATA_WIDTH-1:0] h4;
 
     reg panic;
     reg inc_counter;
