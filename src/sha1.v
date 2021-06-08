@@ -1,7 +1,7 @@
 `default_nettype none
 `timescale 1ns/1ns
 
-module sha1
+module sha1 #(parameter IDX_WIDTH=6)
    (
     input wire clk,
     input wire reset,
@@ -9,15 +9,12 @@ module sha1
     input wire [511:0] message_in,
     output wire [159:0] digest,
     output wire finish,
-    output wire [6:0] idx
+    output wire [IDX_WIDTH:0] idx
 );
     localparam DEFAULT = 32'hf00df00d;
 
-    localparam MESSAGE_SIZE = 512;
     reg [31:0] message[79:0];
-
-    localparam DIGEST_SIZE = 160;
-    reg [6:0] index;
+    reg [IDX_WIDTH:0] index;
 
     localparam STATE_INIT   = 0;
     localparam STATE_START  = 1;

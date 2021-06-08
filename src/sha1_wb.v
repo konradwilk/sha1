@@ -8,7 +8,8 @@
 `endif
 
 module sha1_wb #(
-    parameter    [31:0] BASE_ADDRESS   = 32'h30000024
+    parameter    [31:0] BASE_ADDRESS   = 32'h30000024,
+    parameter  IDX_WIDTH = 6
     ) (
     input wire reset,
 
@@ -41,7 +42,7 @@ module sha1_wb #(
     reg sha1_done;
     wire finish;
     reg [2:0] sha1_digest_idx;
-    reg [6:0] index;
+    reg [IDX_WIDTH:0] index;
     reg [6:0] sha1_msg_idx;
     reg [159:0] digest;
     reg [511:0] message;
