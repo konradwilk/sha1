@@ -82,6 +82,8 @@ module wrapper_sha1  (
 
     sha1_wb sha1_wishbone (
         .reset(reset),
+        .chicken_bits_in(la_data_in[12:5]),
+        .chicken_bits_out(buf_la_data_out[20:5]),
         .done(buf_io_out[8]),
         .irq(buf_irq[0]),
         .wb_clk_i(wb_clk_i),

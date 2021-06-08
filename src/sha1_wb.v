@@ -13,7 +13,8 @@ module sha1_wb #(
     parameter  DATA_WIDTH = 32
     ) (
     input wire reset,
-
+    input wire [7:0] chicken_bits_in,
+    output wire [15:0] chicken_bits_out,
     output wire done,
     output wire irq,
 
@@ -137,7 +138,19 @@ module sha1_wb #(
 
             if (finish)
                 sha1_done <= 1'b1;
-		    /* Read case */
+            if (chicken_bits_in) begin
+		case (chicken_bits_in[7:0])
+		   8'b0000_0001: sha1_on <= 1'b1;
+		   8'b0000_0010: sha1_on <= 1'b0;
+		   8'b0000_0100: sha1_reset <= 1'b1;
+		   8'b0000_1000: sha1_reset <= 1'b0;
+		   8'b0001_0000: sha1_panic <= 1'b1;
+		   8'b0010_0000: sha1_panic <= 1'b0;
+		   8'b0100_0000: sha1_done <= 1'b1;
+		   8'b1000_0000: sha1_done <= 1'b0;
+		   default: ;
+                endcase
+            end
             if (wb_active && !wbs_we_i) begin
                 case (wbs_adr_i)
                     CTRL_GET_NR:
@@ -410,5 +423,6 @@ module sha1_wb #(
 
     assign irq = reset ? 1'b0: sha1_done;
 
+    assign chicken_bits_out = {buffer_o[14:0], sha1_panic};
 endmodule
 `default_nettype wire
