@@ -212,27 +212,10 @@ module sha1_wb #(
                             buffer_o <= EINVAL;
                         else begin
                             buffer_o <= ACK;
-                            case (sha1_msg_idx)
-                                'hf : message[15] <= wbs_dat_i;
-                                'he : message[14] <= wbs_dat_i;
-                                'hd : message[13] <= wbs_dat_i;
-                                'hc : message[12] <= wbs_dat_i;
-                                'hb : message[11] <= wbs_dat_i;
-                                'ha : message[10] <= wbs_dat_i;
-                                'h9 : message[9] <= wbs_dat_i;
-                                'h8 : message[8] <= wbs_dat_i;
-                                'h7 : message[7] <= wbs_dat_i;
-                                'h6 : message[6] <= wbs_dat_i;
-                                'h5 : message[5] <= wbs_dat_i;
-                                'h4 : message[4] <= wbs_dat_i;
-                                'h3 : message[3] <= wbs_dat_i;
-                                'h2 : message[2] <= wbs_dat_i;
-                                'h1 : message[1] <= wbs_dat_i;
-                                'h0 : message[0] <= wbs_dat_i;
-                                default: begin
+                            if (sha1_msg_idx > 15)
                                     sha1_panic <= 1'b1;
-                                end
-                            endcase
+                            else
+                                message[sha1_msg_idx] <= wbs_dat_i;
                             if (!transmit) begin
                                 if (sha1_msg_idx == 'hf) begin
                                     sha1_on <= 1'b1;
