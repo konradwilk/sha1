@@ -18,6 +18,13 @@ if { [file exists $filename] == 1} {
 	source $filename
 }
 
+set ::env(DIE_AREA) "0 0 800 800"
+set ::env(FP_SIZING) absolute
+
+set ::env(RUN_CVC) 0
+set ::env(DESIGN_IS_CORE) 0
+set ::env(GLB_RT_MAXLAYER) 5
+
 set ::env(VDD_NETS) [list {vccd1} {vccd2} {vdda1} {vdda2}]
 set ::env(GND_NETS) [list {vssd1} {vssd2} {vssa1} {vssa2}]
 
