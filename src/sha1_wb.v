@@ -136,9 +136,10 @@ module sha1_wb #(
             if (transmit)
                 transmit <= 1'b0;
 
-            if (sha1_reset)
+            if (sha1_reset) begin
+                sha1_digest_idx <= 0;
                 sha1_reset <= 1'b0;
-
+            end
             if (finish)
                 sha1_done <= 1'b1;
             if (chicken_bits_in) begin
@@ -170,11 +171,11 @@ module sha1_wb #(
                     begin
                         if (sha1_done) begin
                             case (sha1_digest_idx)
-                                'h0: buffer_o <= h4;
-                                'h1: buffer_o <= h3;
+                                'h4: buffer_o <= h4;
+                                'h3: buffer_o <= h3;
                                 'h2: buffer_o <= h2;
-                                'h3: buffer_o <= h1;
-                                'h4: buffer_o <= h0;
+                                'h1: buffer_o <= h1;
+                                'h0: buffer_o <= h0;
                                 default: sha1_panic <= 1'b1;
                             endcase
                             if (!transmit) begin
