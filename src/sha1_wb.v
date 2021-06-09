@@ -307,7 +307,10 @@ module sha1_wb #(
              * the +1 adjustment for every offset.
              */
             if (index >= 15) begin
-                message[index+1] <= (message[index-3+1] ^ message[index-8+1] ^ message[index-14+1] ^ message[index-16+1]) << 1;
+                message[index+1] <= {(message[index-3+1][30:0] ^ message[index-8+1][30:0] ^
+                                     message[index-14+1][30:0] ^ message[index-16+1][30:0]),
+                                     (message[index-3+1][31] ^ message[index-8+1][31] ^
+                                      message[index-14+1][31] ^ message[index-16+1][31])};
             end
             case (state)
                 STATE_INIT: begin
@@ -413,9 +416,9 @@ module sha1_wb #(
 
     assign a_left_5 = {a[26:0], a[31:27]};
     assign b_old_left_30 = {b_old[1:0], b_old[31:2]};
-    assign w_left_1 = {message[index][30:0], message[index][31]};
+
     /* Provides the w[index] funcionality */
-    assign w = (index > 15) ? w_left_1 : message[index];
+    assign w =  message[index];
 
     assign digest = {h0, h1, h2, h3, h4};
 
