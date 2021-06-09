@@ -340,7 +340,7 @@ module sha1_wb #(
                 end
 
                 LOOP_ONE: begin
-                    if (index == 19) begin
+                    if ((index == 19) && (inc_counter)) begin
                         state <= LOOP_TWO;
                         k <= 32'h6ED9EBA1;
                     end
@@ -354,7 +354,7 @@ module sha1_wb #(
                     end
                 end
                 LOOP_TWO: begin
-                    if (index == 39) begin
+                    if ((index == 39) && (inc_counter)) begin
                         state <= LOOP_THREE;
                         k <= 32'h8F1BBCDC;
                     end
@@ -367,7 +367,7 @@ module sha1_wb #(
                     end
                 end
                 LOOP_THREE: begin
-                    if (index == 59) begin
+                    if ((index == 59) && (inc_counter)) begin
                         state <= LOOP_FOUR;
                         k <= 32'hCA62C1D6;
                     end
@@ -380,7 +380,7 @@ module sha1_wb #(
                     end
                 end
                 LOOP_FOUR: begin
-                    if (index == 79) begin
+                    if ((index == 79)  && (inc_counter)) begin
                         state <= STATE_DONE;
                         k <= DEFAULT;
                     end
