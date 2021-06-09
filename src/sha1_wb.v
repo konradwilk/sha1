@@ -62,6 +62,8 @@ module sha1_wb #(
     reg [3:0] state;
 
     wire [DATA_WIDTH-1:0] w;
+    wire [DATA_WIDTH-1:0] a_left_5;
+    wire [DATA_WIDTH-1:0] w_left_1;
 
     reg [DATA_WIDTH-1:0] a;
     reg [DATA_WIDTH-1:0] a_old;
@@ -342,7 +344,7 @@ module sha1_wb #(
                     if (compute) begin
                     /* f = (b and c) or ((not b) and d) */
                     /* temp = (a leftrotate 5) + f + e + k + w[i] */
-                        temp <= (a << 5) + ((b & c) | (~b) & d) + e + k + w;
+                        temp <= (a_left_5) + ((b & c) | (~b) & d) + e + k + w;
                         copy_values <= 1'b1;
                         compute <= 1'b0;
                     end
@@ -355,7 +357,7 @@ module sha1_wb #(
                     if (compute) begin
                     /* f = b xor c xor d */
                     /* temp = (a leftrotate 5) + f + e + k + w[i] */
-                        temp <= (a << 5) + (b ^ c ^ d) + e + k + w;
+                        temp <= (a_left_5) + (b ^ c ^ d) + e + k + w;
                         copy_values <= 1'b1;
                         compute <= 1'b0;
                     end
@@ -368,7 +370,7 @@ module sha1_wb #(
                     if (compute) begin
                     /* f = (b and c) or (b and d) or (c and d) */
                     /* temp = (a leftrotate 5) + f + e + k + w[i] */
-                        temp <= (a << 5) + ((b & c) | (b & d) | (c & d)) + e + k + w;
+                        temp <= (a_left_5) + ((b & c) | (b & d) | (c & d)) + e + k + w;
                         copy_values <= 1'b1;
                         compute <= 1'b0;
                     end
@@ -381,7 +383,7 @@ module sha1_wb #(
                     if (compute) begin
                     /* f = b xor c xor d
                     /* temp = (a leftrotate 5) + f + e + k + w[i] */
-                        temp <= (a << 5) + (b ^ c ^ d) + e + k + w;
+                        temp <= (a_left_5) + (b ^ c ^ d) + e + k + w;
                         copy_values <= 1'b1;
                         compute <= 1'b0;
                     end
@@ -408,8 +410,11 @@ module sha1_wb #(
         end
     end
 
+    assign a_left_5 = {a[26:0],a[31:27]};
+
+    assign w_left_1 = {message[index][30:0], message[index][31]};
     /* Provides the w[index] funcionality */
-    assign w = message[index];
+    assign w = (index > 15) ? w_left_1 : message[index];
 
     assign digest = {h0, h1, h2, h3, h4};
 
