@@ -143,12 +143,11 @@ void wishbone_test(void)
 	val = read(CTRL_SHA1_OPS);
         BUG_ON(val & 0x1 == 0x1)
 
-	write(CTRL_MSG_IN, 0x28); /* [0]=0x28 */
-        for (i = 1; i < 14; i++)
+	write(CTRL_MSG_IN, 0x61626380); /* [0]= */
+        for (i = 1; i < 15; i++)
 		write(CTRL_MSG_IN, 0x0);
 
-        write(CTRL_MSG_IN, 0x65800000); /* [14]= */
-        write(CTRL_MSG_IN, 0x61626364);
+        write(CTRL_MSG_IN, 0x18); /* [15]= */
 
         /* The sha1_done should be set */
 	val = read(CTRL_SHA1_OPS);
@@ -161,6 +160,21 @@ void wishbone_test(void)
               break;
         } while (val & 1); /* Spin as long as sha1_on is set */
 
+
+        val = read(CTRL_SHA1_DIGEST);
+        BUG_ON(val != 0xa9993e36);
+
+        val = read(CTRL_SHA1_DIGEST);
+        BUG_ON(val != 0x4706816a);
+
+        val = read(CTRL_SHA1_DIGEST);
+        BUG_ON(val != 0xba3e2571);
+
+        val = read(CTRL_SHA1_DIGEST);
+        BUG_ON(val != 0x7850c26c);
+
+        val = read(CTRL_SHA1_DIGEST);
+        BUG_ON(val != 0x9cd0d89d);
 
 	do {
 		// Spin until IRQ come in (it may already..)
