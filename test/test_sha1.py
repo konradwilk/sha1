@@ -6,7 +6,6 @@ from cocotb.binary import BinaryValue
 import ctypes
 
 DEFAULT     = 0xf00df00d;
-SHA         = 0x61626364658000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000028;
 
 STATE_INIT  = 0;
 STATE_START = 1;
@@ -31,7 +30,7 @@ async def reset(dut):
     await ClockCycles(dut.wb_clk_i, 5)
     dut.reset <= 0
 
-async def payload(dut, msg):
+async def payload(dut):
 
     assert (dut.state == STATE_INIT);
 
@@ -40,9 +39,8 @@ async def payload(dut, msg):
     for i in range(len(dut.message)):
        dut.message[i] <= 0;
 
-    dut.message[0] <= 0x28;
-    dut.message[14] <= 0x65800000;
-    dut.message[15] <= 0x61626364;
+    dut.message[0] <= 0x18;
+    dut.message[15] <= 0x61626364; # abc
 
     assert (dut.state == STATE_INIT);
 
@@ -56,14 +54,19 @@ async def payload(dut, msg):
     assert (dut.state == STATE_START);
 
 
-async def loop_one(dut, msg):
+async def loop_one(dut):
 
     assert (dut.state == STATE_START);
     await ClockCycles(dut.wb_clk_i, 1)
 
     for i in range(len(dut.message)):
         dut._log.info("%d = [%s]" % (i, hex(BinaryValue(str(dut.message[i].value)))));
-        # TODO, match with msg.
+        if i == 0:
+           assert(dut.message[i].value == 0x28);
+        if i == 14:
+           assert(dut.message[i].value == 0x65800000);
+        if i == 15:
+           assert(dut.message[i].value == 0x61626364);
 
     assert (dut.state == LOOP_ONE);
 
@@ -219,9 +222,9 @@ async def test_sha1(dut):
 
     await reset(dut)
 
-    await payload(dut, int(SHA))
+    await payload(dut)
 
-    await loop_one(dut, int(SHA))
+    await loop_one(dut)
 
     await loop(dut, LOOP_TWO, 19, 0x6ED9EBA1);
 
