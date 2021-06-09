@@ -64,6 +64,7 @@ module sha1_wb #(
     wire [DATA_WIDTH-1:0] w;
     wire [DATA_WIDTH-1:0] a_left_5;
     wire [DATA_WIDTH-1:0] w_left_1;
+    wire [DATA_WIDTH-1:0] b_old_left_30;
 
     reg [DATA_WIDTH-1:0] a;
     reg [DATA_WIDTH-1:0] a_old;
@@ -291,7 +292,7 @@ module sha1_wb #(
             if (copy_values) begin
                 e <= d_old;
                 d <= c_old;
-                c <= b_old << 30; /* TODO: Does this even work in one clock ? */
+                c <= b_old_left_30;
                 b <= a_old;
                 a <= temp;
                 copy_values <= 1'b0;
@@ -410,8 +411,8 @@ module sha1_wb #(
         end
     end
 
-    assign a_left_5 = {a[26:0],a[31:27]};
-
+    assign a_left_5 = {a[26:0], a[31:27]};
+    assign b_old_left_30 = {b_old[1:0], b_old[31:2]};
     assign w_left_1 = {message[index][30:0], message[index][31]};
     /* Provides the w[index] funcionality */
     assign w = (index > 15) ? w_left_1 : message[index];
