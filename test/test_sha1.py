@@ -84,8 +84,6 @@ async def loop_one(dut):
     assert (dut.copy_values == 0);
     assert (dut.index == 0);
 
-    assert (dut.temp == DEFAULT);
-
     # Now lets compute the first function.
     a = INITIAL_H0;
     b = INITIAL_H1;
@@ -111,6 +109,12 @@ async def loop_one(dut):
 
         # Crank it and ..
         await ClockCycles(dut.wb_clk_i, 1)
+
+        # Note that we probe for dut.temp here, and the inc_counter had fired
+        # of in previous clock cycle, so we are at:
+        assert (dut.index == i+1);
+
+        # And the dut.temp contais the value from the previous index value.
 
         dut._log.info("i=%2d w=%8x temp=%8x (temp=%8x)" % (i, w, int(dut.temp), temp));
 
@@ -147,35 +151,54 @@ async def loop_one(dut):
         a = temp;
 
 
-async def loop(dut, loop_state, idx, k):
+async def loop(dut, loop_state, idx, k, loop_cnt):
 
-    assert (dut.state == loop_state);
+    assert (int(dut.state) + 1 == loop_state);
+    # Start at the previous loop.
     assert (dut.index == idx);
-    assert (dut.k == k);
-    dut._log.info("before loop state=%d dut.index = %d " % (int(dut.state.value), int(dut.index)));
+    assert (dut.k != k);
 
-    for i in range(20):
+    for i in range(loop_cnt):
 
-        dut._log.info("i=%2d w=%8x temp=%8x" % (dut.index, int(dut.w),int(dut.temp)));
-        assert (dut.index == i+idx);
-
-        await ClockCycles(dut.wb_clk_i, 1)
+        w = int(dut.w);
+        idx = int(dut.index);
 
         await ClockCycles(dut.wb_clk_i, 1)
+        # It is a two clock cycle operation. In the first we copy_values:
+        assert (dut.copy_values == 1);
+        assert (dut.compute == 0);
 
-    dut._log.info("after loop state=%d dut.index = %d " % (int(dut.state.value), int(dut.index)));
+        assert (int(dut.state)  == loop_state);
+
+        await ClockCycles(dut.wb_clk_i, 1)
+        # Now we actually compute the value
+        assert (dut.copy_values == 0);
+        assert (dut.compute == 1);
+
+        # And the index had moved from the start of the loop
+        assert (dut.index == idx + 1);
+
+        temp = int(dut.temp);
+        dut._log.info("i=%2d w=%8x temp=%8x" % (idx, w, temp));
+
+    dut._log.info("%d=%d finished with idx=%d" % (int(dut.state), loop_state, int(dut.index)));
 
 async def loop_done(dut, idx, k):
+
+    # Crank it over
+    await ClockCycles(dut.wb_clk_i, 1)
 
     assert (dut.state == STATE_DONE);
     assert (dut.k == k);
     assert (dut.index == idx);
-    dut._log.info("i=%2d w=%8x temp=%8x" % (dut.index, int(dut.w), int(dut.temp)));
+
+    dut._log.info("i=%2d temp=%8x" % (dut.index, int(dut.temp)));
 
     # The finish wire is not set.
     assert (dut.finish == 0);
 
     await ClockCycles(dut.wb_clk_i, 1)
+
     assert (dut.index == 0);
     assert (dut.state == STATE_FINAL);
 
@@ -198,7 +221,9 @@ async def loop_final(dut):
     await ClockCycles(dut.wb_clk_i, 1)
 
     # Lets toggle the 'on' down, the state should go back to INIT
-    # It takes two cycles?
+    # It takes two cycles - one to register sha1_on going down, the
+    # other to register the state moving to STATE_INIT.
+
     dut.sha1_on <= 0;
     await ClockCycles(dut.wb_clk_i, 2)
 
@@ -216,16 +241,17 @@ async def test_sha1(dut):
 
     await reset(dut)
 
-    await payload(dut)
+    for i in range(3):
+        await payload(dut)
 
-    await loop_one(dut)
+        await loop_one(dut)
 
-    await loop(dut, LOOP_TWO, 19, 0x6ED9EBA1);
+        await loop(dut, LOOP_TWO, 19, 0x6ED9EBA1, 20);
 
-    await loop(dut, LOOP_THREE, 39, 0x8F1BBCDC);
+        await loop(dut, LOOP_THREE, 39, 0x8F1BBCDC, 20);
 
-    await loop(dut, LOOP_FOUR, 59, 0xCA62C1D6);
+        await loop(dut, LOOP_FOUR, 59, 0xCA62C1D6, 20);
 
-    await loop_done(dut, 79, 0xf00df00d);
+        await loop_done(dut, 80, 0xf00df00d);
 
-    await loop_final(dut);
+        await loop_final(dut);
