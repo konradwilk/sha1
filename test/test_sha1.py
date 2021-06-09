@@ -39,8 +39,8 @@ async def payload(dut):
     for i in range(len(dut.message)):
        dut.message[i] <= 0;
 
-    dut.message[0] <= 0x18;
-    dut.message[15] <= 0x61626364; # abc
+    dut.message[0] <= 0x61626380;
+    dut.message[15] <= 0x18; # abc
 
     assert (dut.state == STATE_INIT);
 
@@ -62,11 +62,9 @@ async def loop_one(dut):
     for i in range(len(dut.message)):
         dut._log.info("%d = [%s]" % (i, hex(BinaryValue(str(dut.message[i].value)))));
         if i == 0:
-           assert(dut.message[i].value == 0x28);
-        if i == 14:
-           assert(dut.message[i].value == 0x65800000);
+           assert(dut.message[i].value == 0x61626380);
         if i == 15:
-           assert(dut.message[i].value == 0x61626364);
+           assert(dut.message[i].value == 0x18);
 
     assert (dut.state == LOOP_ONE);
 
@@ -102,16 +100,11 @@ async def loop_one(dut):
 
         assert (dut.index == i);
 
-        dut._log.info("i=%d dut.w = %x " % (i, int(dut.w)));
-
-        #if i == 0:
-        #    assert (dut.w == int(msg));
-        #else:
-        #    assert (dut.w == int(0));
-
         # Compute cycle:
-        f = (b & c) | ((-b) & d);
-        temp = ctypes.c_uint(ctypes.c_uint(a << 5).value + f + e + k + int(dut.w)).value;
+        f = (b & c) | ((~b) & d);
+        w = int(dut.w);
+        a_left_5 = (a << 5| a >> 27) & 0xFFFFFFFF;
+        temp = ctypes.c_uint(a_left_5 + f + e + k + w).value;
 
         assert (dut.compute == 1);
         assert (dut.copy_values == 0);
@@ -119,7 +112,7 @@ async def loop_one(dut):
         # Crank it and ..
         await ClockCycles(dut.wb_clk_i, 1)
 
-        dut._log.info("i=%d dut.temp = %x temp=%x" % (i, int(dut.temp), temp));
+        dut._log.info("i=%2d w=%8x temp=%8x (temp=%8x)" % (i, w, int(dut.temp), temp));
 
         # Better have same values!
         assert (dut.temp == temp);
@@ -149,7 +142,7 @@ async def loop_one(dut):
 
         e = d;
         d = c;
-        c = ctypes.c_uint(b << 30).value;
+        c = ctypes.c_uint((b << 30 | b >> 2) & 0xFFFFFFFF).value;
         b = a;
         a = temp;
 
@@ -163,7 +156,7 @@ async def loop(dut, loop_state, idx, k):
 
     for i in range(20):
 
-        dut._log.info("i=%d dut.index = %d " % (i, int(dut.index)));
+        dut._log.info("i=%2d w=%8x temp=%8x" % (dut.index, int(dut.w),int(dut.temp)));
         assert (dut.index == i+idx);
 
         await ClockCycles(dut.wb_clk_i, 1)
@@ -177,6 +170,7 @@ async def loop_done(dut, idx, k):
     assert (dut.state == STATE_DONE);
     assert (dut.k == k);
     assert (dut.index == idx);
+    dut._log.info("i=%2d w=%8x temp=%8x" % (dut.index, int(dut.w), int(dut.temp)));
 
     # The finish wire is not set.
     assert (dut.finish == 0);
