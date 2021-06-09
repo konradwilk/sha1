@@ -270,7 +270,7 @@ module sha1_wb #(
                 state <= STATE_INIT;
 
             /* Never should happen. TODO: Remove*/
-            if (index > 79) begin
+            if (index > 80) begin
                 panic <= 1'b1;
                 state <= STATE_PANIC;
             end
@@ -393,16 +393,18 @@ module sha1_wb #(
                     end
                 end
                 STATE_DONE: begin
-                    h0 <= h0 + a;
-                    h1 <= h1 + b;
-                    h2 <= h2 + c;
-                    h3 <= h3 + d;
-                    h4 <= h4 + e;
-                    state <= STATE_FINAL;
                     index <= 0;
-                    copy_values <= 1'b0;
-                    compute <= 1'b0;
                     inc_counter <= 1'b0;
+                    if (compute) begin
+                        h0 <= h0 + a;
+                        h1 <= h1 + b;
+                        h2 <= h2 + c;
+                        h3 <= h3 + d;
+                        h4 <= h4 + e;
+                        state <= STATE_FINAL;
+                        copy_values <= 1'b0;
+                        compute <= 1'b0;
+                    end
                 end
                 STATE_FINAL: begin
                     if (!sha1_on)

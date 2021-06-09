@@ -321,13 +321,18 @@ void SHA1ProcessMessageBlock(SHA1Context *context)
     printf("A=%x\n", A);
     printf("B=%x\n", B);
     printf("C=%x\n", C);
-    printf("E=%x\n", E);
+    printf("D=%x\n", D);
     printf("E=%x\n", E);
     context->Intermediate_Hash[0] += A;
     context->Intermediate_Hash[1] += B;
     context->Intermediate_Hash[2] += C;
     context->Intermediate_Hash[3] += D;
     context->Intermediate_Hash[4] += E;
+    printf("H0=%x\n", context->Intermediate_Hash[0]);
+    printf("H1=%x\n", context->Intermediate_Hash[1]);
+    printf("H2=%x\n", context->Intermediate_Hash[2]);
+    printf("H3=%x\n", context->Intermediate_Hash[3]);
+    printf("H4=%x\n", context->Intermediate_Hash[4]);
 
     context->Message_Block_Index = 0;
 }

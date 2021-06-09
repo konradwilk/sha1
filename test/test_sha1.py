@@ -185,25 +185,53 @@ async def loop(dut, loop_state, idx, k, loop_cnt):
 
 async def loop_done(dut, idx, k):
 
-    # Crank it over
+    # Crank it over (let it do its compute and increase index)
     await ClockCycles(dut.wb_clk_i, 1)
 
     assert (dut.state == STATE_DONE);
     assert (dut.k == k);
     assert (dut.index == idx);
 
+    # Now let is copy the values over
+    assert (dut.copy_values == 1);
+    await ClockCycles(dut.wb_clk_i, 1)
+
+    assert (dut.copy_values == 0);
     dut._log.info("i=%2d temp=%8x" % (dut.index, int(dut.temp)));
+
+    assert(int(dut.temp) == 0x42541b35);
+    dut._log.info("A=%8x" % (int(dut.a)));
+    assert(int(dut.a) == 0x42541b35);
+    dut._log.info("B=%8x" % (int(dut.b)));
+    assert(int(dut.b) == 0x5738d5e1);
+    dut._log.info("C=%8x" % (int(dut.c)));
+    assert(int(dut.c) == 0x21834873);
+    dut._log.info("D=%8x" % (int(dut.d)));
+    assert(int(dut.d) == 0x681e6df6);
+    dut._log.info("E=%8x" % (int(dut.d)));
+    assert(int(dut.e) == 0xd8fdf6ad);
+
 
     # The finish wire is not set.
     assert (dut.finish == 0);
 
+    # Lets turn it over so the addition to Hx can be
+    # registered
     await ClockCycles(dut.wb_clk_i, 1)
 
     assert (dut.index == 0);
     assert (dut.state == STATE_FINAL);
 
+    assert (dut.h0 == 0xa9993e36);
+    assert (dut.h1 == 0x4706816a);
+    assert (dut.h2 == 0xba3e2571);
+    assert (dut.h3 == 0x7850c26c);
+    assert (dut.h4 == 0x9cd0d89d);
     # But now it is !
     assert (dut.finish == 1);
+
+    dut._log.info("digest=%x " % (int(dut.digest.value)));
+    assert (int(dut.digest) == 0xa9993e364706816aba3e25717850c26c9cd0d89d);
 
     # Just spin for fun.
     for i in range(20):
@@ -211,6 +239,7 @@ async def loop_done(dut, idx, k):
        assert (dut.finish == 1);
 
     assert (dut.index == 0);
+
 
 async def loop_final(dut):
 
