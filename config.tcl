@@ -18,8 +18,13 @@ if { [file exists $filename] == 1} {
 	source $filename
 }
 
+
 set ::env(DIE_AREA) "0 0 800 800"
 set ::env(FP_SIZING) absolute
+set ::env(FP_CORE_UTIL) 40
+
+set ::env(RUN_KLAYOUT_XOR) 0
+set ::env(RUN_KLAYOUT_DRC) 0
 
 set ::env(RUN_CVC) 0
 set ::env(DESIGN_IS_CORE) 0
