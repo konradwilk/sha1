@@ -6,6 +6,7 @@ ICEBREAKER_PIN_DEF = fpga/icebreaker.pcf
 ICEBREAKER_PACKAGE = sg48
 SEED = 1
 MULTI_PROJECT_DIR ?= $(PWD)/../multi_project_tools
+PRECHECK = $(PWD)../open_mpw_precheck
 GCC_PATH ?= /opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-centos6/bin
 GCC_PREFIX ?= riscv64-unknown-elf
 
@@ -30,6 +31,7 @@ run_gds:
 		-u $(shell id -u $$USER):$(shell id -g $$USER) \
 		efabless/openlane:v0.15 \
 		/bin/bash -c "./flow.tcl -overwrite -design /work/ -run_path /out/ -tag done"
+	find done -name *.log | xargs grep ERROR
 	cp -f done/results/lvs/wrapper_sha1.lvs.powered.v gds/
 	cp -f done/results/magic/wrapper_sha1.gds gds/
 	cp -f done/results/magic/wrapper_sha1.gds.png gds/
@@ -78,7 +80,22 @@ caravel:
 	cp -f gds/wrapper_sha1.gds $(TARGET_PATH)/gds
 	cp -f gds/wrapper_sha1.gds.png $(TARGET_PATH)/pics/sha1.png
 	cp -f gds/wrapper_sha1.lef $(TARGET_PATH)/lef
-	sha1sum gds/wrapper_sha1.*
+	echo -n "GDS/LEF/GL from " > $(TARGET_PATH)/d
+	git describe --always >> $(TARGET_PATH)/d
+	sha1sum gds/wrapper_sha1.* >> $(TARGET_PATH)/d
+	$(MAKE) -C $(TARGET_PATH) user_project_wrapper
+	docker run -it \
+		-v $(PRECHECK):/usr/local/bin \
+		-v $(TARGET_PATH):$(TARGET_PATH) \
+		-v $(PDK_ROOT):$(PDK_ROOT) \
+		-v $(CARAVEL_ROOT):$(CARAVEL_ROOT) \
+		-e TARGET_PATH=$(TARGET_PATH) \
+		-e PDK_ROOT=$(PDK_ROOT) \
+		-e CARAVEL_ROOT=$(CARAVEL_ROOT) \
+		-u $(id -u $USER):$(id -g $USER) \
+		efabless/open_mpw_precheck:latest
+		/bin/bash -c "./run_precheck.sh"
+	grep "ERROR" $(TARGET_PATH)/openlane/user_project_wrapper/runs/user_project_wrapper/logs/flow_summary.log
 
 test_sha1:
 	rm -rf sim_build/

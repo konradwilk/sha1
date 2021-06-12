@@ -2,7 +2,7 @@
 export COCOTB_REDUCED_LOG_FMT=1
 MODULE = test_wrapper
 TOPLEVEL = wrapper_sha1
-VERILOG_SOURCES = wrapper_sha1.lvs.powered.v
+VERILOG_SOURCES = wrapper_sha1.lvs.v
 
 COMPILE_ARGS=-I $(PDK_ROOT)/sky130A/ -DMPRJ_IO_PADS=38
 
