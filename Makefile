@@ -38,8 +38,9 @@ run_gds:
 
 .PHONY: gds
 gds: done/results/lvs/wrapper_sha1.lvs.powered.v
-	awk '1;/wbs_sel_i);/{ print "`ifdef COCOTB_SIM"; print "initial begin"; print "$$dumpfile (\"wrapper.vcd\");"; print "$$dumpvars (0, wrapper_sha1);"; print "#1;"; print "end"; print "`endif"}' done/results/lvs/wrapper_sha1.lvs.powered.v > gds/v
-	cat gds/header gds/v > gds/wrapper_sha1.lvs.powered.v
+	cp -f done/results/lvs/wrapper_sha1.lvs.powered.v gds/
+	awk '1;/wbs_sel_i);/{ print "`ifdef COCOTB_SIM"; print "initial begin"; print "$$dumpfile (\"wrapper.vcd\");"; print "$$dumpvars (0, wrapper_sha1);"; print "#1;"; print "end"; print "`endif"}' gds/wrapper_sha1.lvs.powered.v > gds/v
+	cat gds/header gds/v > gds/wrapper_sha1.lvs.v
 	$(MAKE) test_gds
 	$(MAKE) test_lvs_wrapper
 
@@ -58,7 +59,7 @@ covered:
 test_lvs_wrapper:
 	rm -rf sim_build/
 	mkdir sim_build/
-	iverilog -o sim_build/sim.vvp -DMPRJ_IO_PADS=38 -I $(PDK_ROOT)/sky130A/ -s wrapper_sha1 -s dump -g2012 gds/wrapper_sha1.lvs.powered.v  test/dump_wrapper.v
+	iverilog -o sim_build/sim.vvp -DMPRJ_IO_PADS=38 -I $(PDK_ROOT)/sky130A/ -s wrapper_sha1 -s dump -g2012 gds/wrapper_sha1.lvs.v  test/dump_wrapper.v
 	PYTHONOPTIMIZE=${NOASSERT} MODULE=test.test_wrapper,test.test_wb_logic vvp -M $$(cocotb-config --prefix)/cocotb/libs -m libcocotbvpi_icarus sim_build/sim.vvp
 	! grep failure results.xml
 
@@ -71,6 +72,13 @@ multi_project: gds
 	$(MAKE) generated.yaml
 	cd $(MULTI_PROJECT_DIR); \
 		./multi_tool.py --config $(CURDIR)/generated.yaml --test-all --force-delete
+
+caravel:
+	cp -f gds/wrapper_sha1.lvs.powered.v $(TARGET_PATH)/verilog/gl/wrapper_sha1.v
+	cp -f gds/wrapper_sha1.gds $(TARGET_PATH)/gds
+	cp -f gds/wrapper_sha1.gds.png $(TARGET_PATH)/pics/sha1.png
+	cp -f gds/wrapper_sha1.lef $(TARGET_PATH)/lef
+	sha1sum gds/wrapper_sha1.*
 
 test_sha1:
 	rm -rf sim_build/
