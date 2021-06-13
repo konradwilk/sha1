@@ -55,7 +55,7 @@ done/results/lvs/wrapper_sha1.lvs.powered.v:
 
 covered:
 	$(MAKE) test_wrapper
-	covered score -t wrapper_sha1 -I src/ -v src/wrapper.v -v src/wb_logic.v -v src/sha1_wb.v -vcd wrapper.vcd -D MPRJ_IO_PADS=38 -i wrapper_sha1 -o final.cdd
+	covered score -t wrapper_sha1 -I src/ -v src/wrapper_sha1.v -v src/sha1_wb.v -vcd wrapper.vcd -D MPRJ_IO_PADS=38 -i wrapper_sha1 -o final.cdd
 	covered report -d v final.cdd
 
 test_lvs_wrapper:
