@@ -18,7 +18,7 @@ if { [file exists $filename] == 1} {
 	source $filename
 }
 
-set ::env(DIE_AREA) "0 0 1000 1000"
+set ::env(DIE_AREA) "0 0 800 800"
 set ::env(FP_SIZING) absolute
 
 set ::env(RUN_KLAYOUT_XOR) 0
