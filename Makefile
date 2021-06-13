@@ -84,6 +84,7 @@ caravel:
 	git describe --always >> $(TARGET_PATH)/d
 	sha1sum gds/wrapper_sha1.* >> $(TARGET_PATH)/d
 	$(MAKE) -C $(TARGET_PATH) user_project_wrapper
+	! grep "ERROR" $(TARGET_PATH)/openlane/user_project_wrapper/runs/user_project_wrapper/logs/flow_summary.log
 	docker run -it \
 		-v $(PRECHECK):/usr/local/bin \
 		-v $(TARGET_PATH):$(TARGET_PATH) \
@@ -92,10 +93,9 @@ caravel:
 		-e TARGET_PATH=$(TARGET_PATH) \
 		-e PDK_ROOT=$(PDK_ROOT) \
 		-e CARAVEL_ROOT=$(CARAVEL_ROOT) \
-		-u $(id -u $USER):$(id -g $USER) \
-		efabless/open_mpw_precheck:latest
+		-u $(shell id -u $$USER):$(shell id -g $$USER) \
+		efabless/open_mpw_precheck:latest \
 		/bin/bash -c "./run_precheck.sh"
-	! grep "ERROR" $(TARGET_PATH)/openlane/user_project_wrapper/runs/user_project_wrapper/logs/flow_summary.log
 
 test_sha1:
 	rm -rf sim_build/
