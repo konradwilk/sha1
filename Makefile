@@ -6,7 +6,7 @@ ICEBREAKER_PIN_DEF = fpga/icebreaker.pcf
 ICEBREAKER_PACKAGE = sg48
 SEED = 1
 MULTI_PROJECT_DIR ?= $(PWD)/../multi_project_tools
-PRECHECK = $(PWD)../open_mpw_precheck
+PRECHECK = $(PWD)/../open_mpw_precheck
 GCC_PATH ?= /opt/riscv64-unknown-elf-toolchain-10.2.0-2020.12.8-x86_64-linux-centos6/bin
 GCC_PREFIX ?= riscv64-unknown-elf
 
