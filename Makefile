@@ -31,7 +31,7 @@ run_gds:
 		-u $(shell id -u $$USER):$(shell id -g $$USER) \
 		efabless/openlane:v0.15 \
 		/bin/bash -c "./flow.tcl -overwrite -design /work/ -run_path /out/ -tag done"
-	find done -name *.log | xargs grep ERROR
+	! find done -name *.log | xargs grep ERROR
 	cp -f done/results/lvs/wrapper_sha1.lvs.powered.v gds/
 	cp -f done/results/magic/wrapper_sha1.gds gds/
 	cp -f done/results/magic/wrapper_sha1.gds.png gds/
@@ -95,7 +95,7 @@ caravel:
 		-u $(id -u $USER):$(id -g $USER) \
 		efabless/open_mpw_precheck:latest
 		/bin/bash -c "./run_precheck.sh"
-	grep "ERROR" $(TARGET_PATH)/openlane/user_project_wrapper/runs/user_project_wrapper/logs/flow_summary.log
+	! grep "ERROR" $(TARGET_PATH)/openlane/user_project_wrapper/runs/user_project_wrapper/logs/flow_summary.log
 
 test_sha1:
 	rm -rf sim_build/
