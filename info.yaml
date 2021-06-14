@@ -12,7 +12,7 @@ project:
 caravel_test:
   recipe: "all"
   directory: "caravel_test"
-  id: 3
+  id: 4
   module_name: "wrapper_sha1"
   instance_name: "wrapper_sha1"
 
