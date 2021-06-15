@@ -79,7 +79,7 @@ caravel:
 	cp -f gds/wrapper_sha1.lvs.powered.v $(TARGET_PATH)/verilog/gl/wrapper_sha1.v
 	cp -f gds/wrapper_sha1.gds $(TARGET_PATH)/gds
 	cp -f gds/wrapper_sha1.lef $(TARGET_PATH)/lef
-	cp -f caravel_test/* $(TARGET_PATH)/verilog/dv/caravel_test/
+	cp -f caravel_test/* $(TARGET_PATH)/verilog/dv/sha1_test/
 	echo -n "GDS/LEF/GL from " > $(TARGET_PATH)/d
 	git describe --always >> $(TARGET_PATH)/d
 	sha1sum gds/wrapper_sha1.* >> $(TARGET_PATH)/d
