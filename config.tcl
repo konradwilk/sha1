@@ -21,6 +21,8 @@ if { [file exists $filename] == 1} {
 set ::env(DIE_AREA) "0 0 800 800"
 set ::env(FP_SIZING) absolute
 
+set ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) 0
+
 set ::env(RUN_KLAYOUT_XOR) 0
 set ::env(RUN_KLAYOUT_DRC) 0
 
