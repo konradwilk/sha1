@@ -45,7 +45,7 @@ async def test_wrapper(dut):
     await ClockCycles(dut.wb_clk_i, 8)
     dut.power4 <= 1;
 
-    dut.status <= 0
+    dut.status <= int.from_bytes(b'Power ON', byteorder='big')
     dut.wbs_dat_i <= 0
     dut.wbs_dat_o <= 0
     dut.wbs_sel_i <= 0
@@ -71,13 +71,15 @@ async def test_wrapper(dut):
 
     await ClockCycles(dut.wb_clk_i, 100)
 
+    dut.status <= int.from_bytes(b'Active ON', byteorder='big')
     dut.active <= 1
     # Reset pin is hooked up to la_data_in[0].
     dut.la_data_in <= 1 << 0
     await ClockCycles(dut.wb_clk_i,2)
 
     dut.la_data_in <= 0 << 0
-    await ClockCycles(dut.wb_clk_i,1) 
+    await ClockCycles(dut.wb_clk_i,1)
+    dut.status <= int.from_bytes(b'RST DONE', byteorder='big')
 
     dut._log.info("io_out=%s" % (dut.io_out.value));
     value = BinaryValue(str(dut.io_out.value)[:-8].replace('z','').replace('x',''));
