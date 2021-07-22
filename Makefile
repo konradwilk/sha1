@@ -93,7 +93,7 @@ visualize: test_lvs_wrapper
                     --outfile "vis.gif" \
                     --mode 3 \
                     --scale 3 \
-                    --fps 10 \
+                    --fps 30 \
                     --downscale 1 \
                     --blur 1 \
                     --exp_grow 1.2 \

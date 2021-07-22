@@ -7,4 +7,7 @@ This project is under Apache License 2.0.
 
 To calculate SHA-1 digest using Verilog.
 
-![GDSII](pics/sha1.png)
+The visualization of the test-case (*test_wb_logic*) seeding the SHA1 engine
+and then reading the status as it is computing, and then finally reading the values
+out.
+<img src="pics/vis.gif" width="800">
