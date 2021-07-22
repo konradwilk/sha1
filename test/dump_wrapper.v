@@ -15,7 +15,7 @@
 module dump;
     initial begin
         $dumpfile ("wrapper.vcd");
-        $dumpvars (0, wrapper_sha1);
+        $dumpvars (0, dump);
         #1;
     end
     reg [8191:0] status = "START";
