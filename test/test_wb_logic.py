@@ -245,12 +245,15 @@ async def test_engine(dut, wbs, wrapper, gl):
     exp = 1 << 1 | 0; # Reset and OFF
     val = await write_val(dut, wbs, CTRL_SHA1_OPS, exp);
     assert(val == exp);
+    dut.status <= int.from_bytes(b'RESET', byteorder='big')
 
     # Nothing is running, right?
     cmd = CTRL_SHA1_OPS
     exp = 0x0;
     val = await read_val(dut, wbs, cmd, exp);
     assert (val == exp);
+
+    dut.status <= int.from_bytes(b'DATA_IN', byteorder='big')
 
     for i in range(16):
         cmd = CTRL_MSG_IN;
@@ -264,6 +267,7 @@ async def test_engine(dut, wbs, wrapper, gl):
         val = await write_val(dut, wbs, cmd, exp);
         assert (val == 1);
 
+    dut.status <= int.from_bytes(b'COMPUTE_BEGIN', byteorder='big')
     cmd = CTRL_SHA1_OPS
     exp = 0x1; # It should be on
     val = await read_val(dut, wbs, cmd, exp);
@@ -286,6 +290,7 @@ async def test_engine(dut, wbs, wrapper, gl):
     exp = 1 << 3;
     val = await read_val(dut, wbs, CTRL_SHA1_OPS, exp);
     assert (val & exp);
+    dut.status <= int.from_bytes(b'COMPUTE_END', byteorder='big')
 
     # Five reads only
     for i in range(5):
@@ -304,6 +309,8 @@ async def test_engine(dut, wbs, wrapper, gl):
         val = await read_val(dut, wbs, CTRL_SHA1_DIGEST, exp);
         dut._log.info("digest[%x] = val=0x%x idx=%s" % (i, val, idx));
         assert (val == exp);
+
+    dut.status <= int.from_bytes(b'DONE', byteorder='big')
 
 
 async def activate_wrapper(dut):

@@ -87,7 +87,7 @@ visualize: test_lvs_wrapper
                     --prefix "dump" \
 		    --strip ".wrapper_sha1." \
                     --status_var "dump.status" \
-		    --start_status "Active ON" \
+		    --start_status "RESET" \
                     --rst "dump.reset" \
                     --clk "dump.wb_clk_i" \
                     --outfile "vis.gif" \
