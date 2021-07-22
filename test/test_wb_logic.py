@@ -341,8 +341,8 @@ async def test_wb_logic(dut):
                                       "sel": "sel_i"})
     gl = False
     try:
-        dut.vssd1 <= 0
-        dut.vccd1 <= 1
+        dut.wrapper_sha1.vssd1 <= 0
+        dut.wrapper_sha1.vccd1 <= 1
         gl = True
     except:
         traceback.print_exc();
