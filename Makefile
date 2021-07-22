@@ -63,7 +63,7 @@ covered:
 test_lvs_wrapper:
 	rm -rf sim_build/
 	mkdir sim_build/
-	iverilog -o sim_build/sim.vvp -DMPRJ_IO_PADS=38 -I $(PDK_ROOT)/sky130A/ -s wrapper_sha1 -s dump -g2012 gds/wrapper_sha1.lvs.v  test/dump_wrapper.v
+	iverilog -o sim_build/sim.vvp -DMPRJ_IO_PADS=38 -I $(PDK_ROOT)/sky130A/ -s dump -g2012 gds/wrapper_sha1.lvs.v  test/dump_wrapper.v
 	PYTHONOPTIMIZE=${NOASSERT} MODULE=test.test_wrapper,test.test_wb_logic vvp -M $$(cocotb-config --prefix)/cocotb/libs -m libcocotbvpi_icarus sim_build/sim.vvp
 	! grep failure results.xml
 
@@ -113,7 +113,7 @@ prove_sha1:
 test_wrapper:
 	rm -rf sim_build/
 	mkdir sim_build/
-	iverilog -o sim_build/sim.vvp -DMPRJ_IO_PADS=38 -s wrapper_sha1 -s dump -g2012 $(SOURCES) test/dump_wrapper.v
+	iverilog -o sim_build/sim.vvp -DMPRJ_IO_PADS=38  -s dump -g2012 $(SOURCES) test/dump_wrapper.v
 	PYTHONOPTIMIZE=${NOASSERT} MODULE=test.test_wrapper,test.test_wb_logic vvp -M $$(cocotb-config --prefix)/cocotb/libs -m libcocotbvpi_icarus sim_build/sim.vvp
 	! grep failure results.xml
 

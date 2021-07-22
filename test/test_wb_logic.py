@@ -81,7 +81,7 @@ async def test_ops(dut, wbs, wrapper, gl):
 
     if gl == 0:
         if wrapper:
-            name = dut.sha1_wishbone.sha1_on
+            name = dut.wrapper_sha1.sha1_wishbone.sha1_on
         else:
             name = dut.sha1_on
 
@@ -118,8 +118,8 @@ async def test_msg(dut, wbs, wrapper, gl):
 
     if gl == 0:
         if wrapper:
-            name = dut.sha1_wishbone.message;
-            idx = dut.sha1_wishbone.sha1_msg_idx;
+            name = dut.wrapper_sha1.sha1_wishbone.message;
+            idx = dut.wrapper_sha1.sha1_wishbone.sha1_msg_idx;
         else:
             name = dut.message;
             idx = dut.sha1_msg_idx;
@@ -225,7 +225,7 @@ async def test_engine(dut, wbs, wrapper, gl):
 
     if gl == 0:
         if wrapper:
-            idx = dut.sha1_wishbone.sha1_msg_idx;
+            idx = dut.wrapper_sha1.sha1_wishbone.sha1_msg_idx;
         else:
             idx = dut.sha1_msg_idx;
     else:
