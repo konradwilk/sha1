@@ -15,6 +15,8 @@ export COCOTB_REDUCED_LOG_FMT=1
 
 all: test_sha1 test_wb_logic test_wrapper prove_sha1
 
+tests: test_sha1 test_wb_logic test_wrapper test_gds test_lvs_wrapper
+
 test_gds: gds/wrapper_sha1.lvs.powered.v
 	$(MAKE) -C gds
 
