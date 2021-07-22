@@ -14,6 +14,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import cocotb
 import inspect
+import traceback
 from cocotb.clock import Clock
 from cocotb.binary import BinaryValue
 from cocotb.triggers import ClockCycles
@@ -344,14 +345,15 @@ async def test_wb_logic(dut):
         dut.vccd1 <= 1
         gl = True
     except:
-        pass
+        traceback.print_exc();
+
     # This exists in WishBone code only.
     try:
         dut.reset <= 1
         await ClockCycles(dut.wb_clk_i, 5)
         dut.reset <= 0
     except:
-        pass
+        traceback.print_exc();
 
     wrapper = False
     # While this is for for wrapper
@@ -359,7 +361,7 @@ async def test_wb_logic(dut):
         await activate_wrapper(dut);
         wrapper = True
     except:
-        pass
+        traceback.print_exc();
 
     await ClockCycles(dut.wb_clk_i, 100)
 
