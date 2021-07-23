@@ -92,8 +92,8 @@ visualize: test_lvs_wrapper
                     --clk "dump.wb_clk_i" \
                     --outfile "vis.gif" \
                     --mode 3 \
-                    --scale 3 \
-                    --fps 30 \
+                    --scale 1 \
+                    --fps 20 \
                     --downscale 1 \
                     --blur 1 \
                     --exp_grow 1.2 \
